@@ -9,7 +9,9 @@ include("dag.jl")
 include("scheduler_threads.jl")
 
 export Read, Write, ReadWrite, Reduce
+export is_writeish, is_reduce, reduce_op
 export Whole, Key, Block, Tile, IndexSet
+export overlaps, ranges_overlap
 export Access, TaskSpec, access, objkey, add_access!
 export conflicts, task_conflicts
 export DAG, finalize!
