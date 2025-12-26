@@ -45,8 +45,11 @@ ranges_overlap(a::UnitRange{Int}, b::UnitRange{Int}) = max(first(a), first(b)) <
 """
 Overlap semantics; default to conservative `true` for unknown combos.
 """
+overlaps(::Whole, ::Whole) = true
 overlaps(::Whole, ::Region) = true
 overlaps(::Region, ::Whole) = true
+overlaps(::Key, ::Whole) = true
+overlaps(::Whole, ::Key) = true
 
 overlaps(a::Key, b::Key) = a.k == b.k
 overlaps(::Key, ::Region) = false
