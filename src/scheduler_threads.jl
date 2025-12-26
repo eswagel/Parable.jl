@@ -1,13 +1,22 @@
 """
-Execute a finalized DAG. Dispatch to `execute_threads!` or `execute_serial!` based on backend.
+Execute a finalized DAG with optional reduction strategy.
+
+Currently `reduce_strategy=:serialize` runs the standard scheduler; `:privatize`
+is a placeholder that errors until implemented.
 """
-function execute!(dag::DAG; backend=:threads, nworkers::Integer=Threads.nthreads())
-    if backend === :threads
-        return execute_threads!(dag; nworkers=nworkers)
-    elseif backend === :serial
-        return execute_serial!(dag)
+function execute!(dag::DAG; backend=:threads, nworkers::Integer=Threads.nthreads(), reduce_strategy=:serialize)
+    if reduce_strategy === :serialize
+        if backend === :threads
+            return execute_threads!(dag; nworkers=nworkers)
+        elseif backend === :serial
+            return execute_serial!(dag)
+        else
+            error("Unsupported backend: $backend")
+        end
+    elseif reduce_strategy === :privatize
+        return execute_privatize!(dag; backend=backend, nworkers=nworkers)
     else
-        error("Unsupported backend: $backend")
+        error("Unsupported reduce_strategy: $reduce_strategy")
     end
 end
 
