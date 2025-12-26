@@ -1,7 +1,7 @@
 """
 Dependency graph over tasks with adjacency lists and indegree counts.
 """
-struct DAG
+mutable struct DAG
     tasks::Vector{TaskSpec}
     edges::Vector{Vector{Int}}  # i -> successors
     indeg::Vector{Int}
