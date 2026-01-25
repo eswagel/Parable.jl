@@ -8,6 +8,7 @@ include("conflicts.jl")
 include("dag.jl")
 include("scheduler_threads.jl")
 include("reduce_priv.jl")
+include("macros.jl")
 
 export Read, Write, ReadWrite, Reduce
 export is_writeish, is_reduce, reduce_op
@@ -17,7 +18,8 @@ export Access, TaskSpec, access, objkey, add_access!
 export conflicts, task_conflicts
 export DAG, finalize!
 export execute!, execute_threads!, execute_serial!, execute_privatize!
+export @task, @access, @spawn, @dag
 
-# TODO: include and export remaining modules (macros, diagnostics) as they are implemented.
+# TODO: include and export remaining modules (diagnostics) as they are implemented.
 
 end
