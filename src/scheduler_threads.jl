@@ -30,6 +30,7 @@ function execute_threads!(dag::DAG; nworkers::Integer=Threads.nthreads())
     indeg = copy(dag.indeg)
     ready = Channel{Int}(n)
     done = Channel{Int}(n)
+    errors = Channel{Tuple{Any, Any}}(n)
     remaining = Threads.Atomic{Int}(n)
 
     # seed ready queue
@@ -40,7 +41,11 @@ function execute_threads!(dag::DAG; nworkers::Integer=Threads.nthreads())
     # worker loop
     workers = [Threads.@spawn begin
         for idx in ready
-            dag.tasks[idx].thunk()
+            try
+                dag.tasks[idx].thunk()
+            catch err
+                put!(errors, (err, catch_backtrace()))
+            end
             put!(done, idx)
             Threads.atomic_sub!(remaining, 1)
         end
@@ -60,6 +65,14 @@ function execute_threads!(dag::DAG; nworkers::Integer=Threads.nthreads())
     close(ready)
     foreach(wait, workers)
     close(done)
+    close(errors)
+
+    if isready(errors)
+        err, bt = take!(errors)
+        showerror(stderr, err, bt)
+        println(stderr)
+        throw(err)
+    end
     dag
 end
 
