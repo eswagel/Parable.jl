@@ -4,42 +4,45 @@ metadata; remaining statements form the task thunk.
 """
 macro task(name, block)
     accesses_sym = gensym(:accesses)
-    stmts = (block isa Expr && block.head == :block) ? block.args : Any[block]
 
-    access_pushes = Expr[]
-    body_stmts = Expr[]
-
-    for st in stmts
-        if st isa LineNumberNode
-            continue
-        elseif st isa Expr && st.head == :macrocall
-            macroref = st.args[1]
-            is_access = macroref == Symbol("@access")
-            if macroref isa Expr && macroref.head == :.
-                lastarg = macroref.args[end]
-                is_access |= lastarg == Symbol("@access") || (lastarg isa QuoteNode && lastarg.value == Symbol("@access"))
-            elseif macroref isa GlobalRef
-                is_access |= macroref.name == Symbol("@access")
+    # Walk an expression tree and rewrite any nested @access macro calls.
+    function rewrite_access(ex)
+        if ex isa LineNumberNode
+            return ex
+        elseif ex isa Expr
+            if ex.head == :macrocall
+                macroref = ex.args[1]
+                is_access = macroref == Symbol("@access")
+                if macroref isa Expr && macroref.head == :.
+                    lastarg = macroref.args[end]
+                    is_access |= lastarg == Symbol("@access") || (lastarg isa QuoteNode && lastarg.value == Symbol("@access"))
+                elseif macroref isa GlobalRef
+                    is_access |= macroref.name == Symbol("@access")
+                end
+                if is_access
+                    length(ex.args) >= 4 || error("@access requires obj, eff, reg")
+                    obj = ex.args[end-2]
+                    eff = ex.args[end-1]
+                    reg = ex.args[end]
+                    # Replace @access call with a push into the task-local access list.
+                    return :(push!($(accesses_sym), access($(obj), $(eff), $(reg))))
+                end
             end
-            if is_access
-                length(st.args) >= 4 || error("@access requires obj, eff, reg")
-                obj = st.args[end-2]
-                eff = st.args[end-1]
-                reg = st.args[end]
-                push!(access_pushes, :(push!($(accesses_sym), access($(esc(obj)), $(esc(eff)), $(esc(reg))))))
-                continue
-            end
+            # Recursively rewrite nested expressions so @access works inside loops/ifs.
+            return Expr(ex.head, map(rewrite_access, ex.args)...)
+        else
+            return ex
         end
-        push!(body_stmts, st)
     end
 
-    return quote
+    # Rewrite the full body to collect access metadata, then return TaskSpec.
+    body = rewrite_access(block)
+    return esc(quote
         local $(accesses_sym) = Access[]
-        $(access_pushes...)
-        TaskSpec($(esc(name)), $(accesses_sym), () -> begin
-            $(map(esc, body_stmts)...)
+        TaskSpec($(name), $(accesses_sym), () -> begin
+            $(body)
         end)
-    end
+    end)
 end
 
 """
