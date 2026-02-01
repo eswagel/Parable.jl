@@ -5,8 +5,8 @@ metadata; remaining statements form the task thunk.
 macro task(name, block)
     accesses_sym = gensym(:accesses)
 
-    # Walk an expression tree and rewrite any nested @access macro calls.
-    function rewrite_access(ex)
+    # Build an expression that executes only @access calls (preserving control flow).
+    function collect_accesses(ex)
         if ex isa LineNumberNode
             return ex
         elseif ex isa Expr
@@ -28,17 +28,49 @@ macro task(name, block)
                     return :(push!($(accesses_sym), access($(obj), $(eff), $(reg))))
                 end
             end
-            # Recursively rewrite nested expressions so @access works inside loops/ifs.
-            return Expr(ex.head, map(rewrite_access, ex.args)...)
+            if ex.head == :block
+                return Expr(:block, filter(!isnothing, map(collect_accesses, ex.args))...)
+            elseif ex.head == :for || ex.head == :while
+                return Expr(ex.head, ex.args[1], collect_accesses(ex.args[2]))
+            elseif ex.head == :if
+                return Expr(:if, ex.args[1], collect_accesses(ex.args[2]), collect_accesses(ex.args[3]))
+            elseif ex.head == :let
+                return Expr(:let, ex.args[1:end-1]..., collect_accesses(ex.args[end]))
+            else
+                return nothing
+            end
+        else
+            return nothing
+        end
+    end
+
+    # Remove @access calls from the task body (so they don't run at execution time).
+    function strip_accesses(ex)
+        if ex isa LineNumberNode
+            return ex
+        elseif ex isa Expr
+            if ex.head == :macrocall
+                macroref = ex.args[1]
+                is_access = macroref == Symbol("@access")
+                if macroref isa Expr && macroref.head == :.
+                    lastarg = macroref.args[end]
+                    is_access |= lastarg == Symbol("@access") || (lastarg isa QuoteNode && lastarg.value == Symbol("@access"))
+                elseif macroref isa GlobalRef
+                    is_access |= macroref.name == Symbol("@access")
+                end
+                is_access && return nothing
+            end
+            return Expr(ex.head, filter(!isnothing, map(strip_accesses, ex.args))...)
         else
             return ex
         end
     end
 
-    # Rewrite the full body to collect access metadata, then return TaskSpec.
-    body = rewrite_access(block)
+    access_body = collect_accesses(block)
+    body = strip_accesses(block)
     return esc(quote
         local $(accesses_sym) = Access[]
+        $(access_body)
         TaskSpec($(name), $(accesses_sym), () -> begin
             $(body)
         end)
