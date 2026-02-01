@@ -10,7 +10,7 @@ function parse_frame(path)
     return pts
 end
 
-function build_animation_html(frame_paths, out_path; sigma=1.0)
+function build_animation_html(frame_paths, out_path; particle_radius=0.2)
     frames = Vector{Vector{Tuple{Float64, Float64}}}(undef, length(frame_paths))
     max_val = 0.0
     for (i, path) in enumerate(frame_paths)
@@ -48,7 +48,7 @@ function build_animation_html(frame_paths, out_path; sigma=1.0)
         println(io, "const c = document.getElementById('c');")
         println(io, "const ctx = c.getContext('2d');")
         println(io, "const label = document.getElementById('frame');")
-        println(io, "const particleRadius = 0.5 * Math.pow(2, 1.0/6.0) * " * string(sigma) * ";")
+        println(io, "const particleRadius = " * string(particle_radius) * ";")
         println(io, "let f = 0;")
         println(io, "function draw() {")
         println(io, "  ctx.clearRect(0, 0, c.width, c.height);")
@@ -76,11 +76,22 @@ out_dir = joinpath(@__DIR__, "..", "output")
 frame_paths = sort(filter(p -> endswith(p, ".csv"), readdir(out_dir; join=true)))
 isempty(frame_paths) && error("No CSV frames found in $(out_dir)")
 out_path = joinpath(out_dir, "animate.html")
+particle_radius = 0.2
+example_path = joinpath(@__DIR__, "..", "03_molecular_dynamics.jl")
+if isfile(example_path)
+    for line in eachline(example_path)
+        m = match(r"^\\s*particle_radius\\s*=\\s*([0-9.eE+-]+)", line)
+        if m !== nothing
+            particle_radius = parse(Float64, m.captures[1])
+            break
+        end
+    end
+end
 for arg in ARGS
-    if startswith(arg, "--sigma=")
-        sigma = parse(Float64, split(arg, "=", limit=2)[2])
+    if startswith(arg, "--radius=")
+        particle_radius = parse(Float64, split(arg, "=", limit=2)[2])
     end
 end
 
-build_animation_html(frame_paths, out_path; sigma=sigma)
-println("Wrote ", out_path, " (sigma=", sigma, ")")
+build_animation_html(frame_paths, out_path; particle_radius=particle_radius)
+println("Wrote ", out_path, " (radius=", particle_radius, ")")
