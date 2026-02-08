@@ -43,8 +43,16 @@ function detangle_foreach(blocks, task_builder::Function; finalize::Bool=true)
     dag = DAG()
     for (i, r) in enumerate(blocks)
         t = task_builder(r, i)
-        t isa TaskSpec || error("task_builder must return a TaskSpec")
-        push!(dag, t)
+        if t isa TaskSpec
+            push!(dag, t)
+        elseif t isa AbstractVector || t isa Tuple
+            for ti in t
+                ti isa TaskSpec || error("task_builder must return TaskSpec or collection of TaskSpec")
+                push!(dag, ti)
+            end
+        else
+            error("task_builder must return TaskSpec or collection of TaskSpec")
+        end
     end
     finalize && finalize!(dag)
     dag
@@ -55,3 +63,29 @@ Do-block friendly signature: `detangle_foreach(blocks) do r, i ... end`.
 """
 detangle_foreach(task_builder::Function, blocks; finalize::Bool=true) =
     detangle_foreach(blocks, task_builder; finalize=finalize)
+
+"""
+Append tasks produced by `task_builder` directly into an existing DAG.
+"""
+function detangle_foreach!(dag::DAG, blocks, task_builder::Function)
+    for (i, r) in enumerate(blocks)
+        t = task_builder(r, i)
+        if t isa TaskSpec
+            push!(dag, t)
+        elseif t isa AbstractVector || t isa Tuple
+            for ti in t
+                ti isa TaskSpec || error("task_builder must return TaskSpec or collection of TaskSpec")
+                push!(dag, ti)
+            end
+        else
+            error("task_builder must return TaskSpec or collection of TaskSpec")
+        end
+    end
+    dag
+end
+
+"""
+Do-block friendly signature: `detangle_foreach!(dag, blocks) do r, i ... end`.
+"""
+detangle_foreach!(dag::DAG, task_builder::Function, blocks) =
+    detangle_foreach!(dag, blocks, task_builder)

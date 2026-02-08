@@ -15,4 +15,21 @@
     end
     execute_serial!(dag)
     @test obj[] == length(blocks)
+
+    # Allow multiple tasks per block.
+    obj[] = 0
+    dag2 = detangle_foreach(blocks) do r, i
+        tasks = TaskSpec[]
+        push!(tasks, Detangle.@task "a-$i" begin
+            Detangle.@access obj Write() Whole()
+            obj[] += 1
+        end)
+        push!(tasks, Detangle.@task "b-$i" begin
+            Detangle.@access obj Write() Whole()
+            obj[] += 1
+        end)
+        tasks
+    end
+    execute_serial!(dag2)
+    @test obj[] == 2 * length(blocks)
 end
