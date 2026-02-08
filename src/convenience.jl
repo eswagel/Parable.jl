@@ -89,3 +89,60 @@ Do-block friendly signature: `detangle_foreach!(dag, blocks) do r, i ... end`.
 """
 detangle_foreach!(dag::DAG, task_builder::Function, blocks) =
     detangle_foreach!(dag, blocks, task_builder)
+
+"""
+Map `f` over `data` in blocks and write results into `dest`.
+
+`blocks` should be a collection of index ranges. `f` is applied elementwise.
+"""
+function detangle_map!(dest::AbstractVector, data::AbstractVector, blocks, f::Function;
+    finalize::Bool=true,
+    name_prefix::String="map")
+    length(dest) == length(data) || error("dest and data must be the same length")
+
+    dag = detangle_foreach(blocks; finalize=false) do r, i
+        Detangle.@task "$(name_prefix)-$i" begin
+            Detangle.@access data Read() Block(r)
+            Detangle.@access dest Write() Block(r)
+            @inbounds for idx in r
+                dest[idx] = f(data[idx])
+            end
+        end
+    end
+    finalize && finalize!(dag)
+    dag
+end
+
+"""
+Map `f` over `data` in blocks and return a new output vector plus the DAG.
+"""
+function detangle_map(data::AbstractVector, blocks, f::Function;
+    finalize::Bool=true,
+    name_prefix::String="map")
+    dest = similar(data)
+    dag = detangle_map!(dest, data, blocks, f; finalize=finalize, name_prefix=name_prefix)
+    return dag, dest
+end
+
+"""
+Reduce `data` in blocks using `mapf` to transform inputs and `op` to combine.
+
+Returns `(dag, result)` where `result` is a length-1 vector storing the scalar.
+Use `reduce_strategy=:privatize` for parallel reductions.
+"""
+function detangle_mapreduce(data::AbstractVector, blocks, op::Function, mapf::Function=identity;
+    finalize::Bool=true,
+    name_prefix::String="mapreduce")
+    acc = zeros(eltype(data), 1)
+    dag = detangle_foreach(blocks; finalize=false) do r, i
+        Detangle.@task "$(name_prefix)-$i" begin
+            Detangle.@access data Read() Block(r)
+            Detangle.@access acc Reduce(op) Whole()
+            @inbounds for idx in r
+                Detangle.reduce_add!(acc, op, Whole(), 1, mapf(data[idx]))
+            end
+        end
+    end
+    finalize && finalize!(dag)
+    return dag, acc
+end

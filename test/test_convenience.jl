@@ -32,4 +32,16 @@
     end
     execute_serial!(dag2)
     @test obj[] == 2 * length(blocks)
+
+    # detangle_map
+    data = collect(1:10)
+    blocks2 = eachblock(length(data), 4)
+    dag_map, out = detangle_map(data, blocks2, x -> x * 2)
+    execute_serial!(dag_map)
+    @test out == data .* 2
+
+    # detangle_mapreduce
+    dag_red, acc = detangle_mapreduce(data, blocks2, +, x -> x * x)
+    execute!(dag_red; backend=:threads, reduce_strategy=:privatize)
+    @test acc[1] == sum(x * x for x in data)
 end
