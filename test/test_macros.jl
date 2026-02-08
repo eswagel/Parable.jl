@@ -18,3 +18,18 @@
     execute_serial!(dag)
     @test obj[] == 2
 end
+
+@testset "accesses block" begin
+    obj = Ref(0)
+
+    task = Detangle.@task "write" begin
+        Detangle.@accesses begin
+            (obj, Write(), Whole())
+        end
+        obj[] = 1
+    end
+
+    @test length(task.accesses) == 1
+    @test isa(task.accesses[1].eff, Write)
+    @test isa(task.accesses[1].reg, Whole)
+end

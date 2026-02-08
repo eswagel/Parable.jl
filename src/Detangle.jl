@@ -8,6 +8,7 @@ include("conflicts.jl")
 include("dag.jl")
 include("scheduler_threads.jl")
 include("reduce_priv.jl")
+include("convenience.jl")
 include("macros.jl")
 include("diagnostics.jl")
 
@@ -20,7 +21,8 @@ export conflicts, task_conflicts
 export DAG, finalize!
 export execute!, execute_threads!, execute_serial!, execute_privatize!
 export reduce_add!
-export @task, @access, @spawn, @dag
+export eachblock, task_from_accesses, detangle_foreach
+export @task, @access, @accesses, @spawn, @dag
 export explain_conflict, print_dag
 
 end

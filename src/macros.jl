@@ -13,11 +13,14 @@ macro task(name, block)
             if ex.head == :macrocall
                 macroref = ex.args[1]
                 is_access = macroref == Symbol("@access")
+                is_accesses = macroref == Symbol("@accesses")
                 if macroref isa Expr && macroref.head == :.
                     lastarg = macroref.args[end]
                     is_access |= lastarg == Symbol("@access") || (lastarg isa QuoteNode && lastarg.value == Symbol("@access"))
+                    is_accesses |= lastarg == Symbol("@accesses") || (lastarg isa QuoteNode && lastarg.value == Symbol("@accesses"))
                 elseif macroref isa GlobalRef
                     is_access |= macroref.name == Symbol("@access")
+                    is_accesses |= macroref.name == Symbol("@accesses")
                 end
                 if is_access
                     length(ex.args) >= 4 || error("@access requires obj, eff, reg")
@@ -26,6 +29,21 @@ macro task(name, block)
                     reg = ex.args[end]
                     # Replace @access call with a push into the task-local access list.
                     return :(push!($(accesses_sym), access($(obj), $(eff), $(reg))))
+                elseif is_accesses
+                    length(ex.args) >= 2 || error("@accesses requires a block")
+                    blk = ex.args[end]
+                    blk isa Expr && blk.head == :block || error("@accesses expects a begin...end block")
+                    entries = Any[]
+                    for ent in blk.args
+                        ent isa LineNumberNode && continue
+                        if ent isa Expr && ent.head == :tuple && length(ent.args) == 3
+                            obj, eff, reg = ent.args
+                            push!(entries, :(push!($(accesses_sym), access($(obj), $(eff), $(reg)))))
+                        else
+                            error("@accesses entries must be (obj, eff, reg) tuples")
+                        end
+                    end
+                    return Expr(:block, entries...)
                 end
             end
             if ex.head == :block
@@ -52,13 +70,16 @@ macro task(name, block)
             if ex.head == :macrocall
                 macroref = ex.args[1]
                 is_access = macroref == Symbol("@access")
+                is_accesses = macroref == Symbol("@accesses")
                 if macroref isa Expr && macroref.head == :.
                     lastarg = macroref.args[end]
                     is_access |= lastarg == Symbol("@access") || (lastarg isa QuoteNode && lastarg.value == Symbol("@access"))
+                    is_accesses |= lastarg == Symbol("@accesses") || (lastarg isa QuoteNode && lastarg.value == Symbol("@accesses"))
                 elseif macroref isa GlobalRef
                     is_access |= macroref.name == Symbol("@access")
+                    is_accesses |= macroref.name == Symbol("@accesses")
                 end
-                is_access && return nothing
+                (is_access || is_accesses) && return nothing
             end
             return Expr(ex.head, filter(!isnothing, map(strip_accesses, ex.args))...)
         else
@@ -82,6 +103,14 @@ Macro to record an access inside a `@task` body.
 """
 macro access(obj, eff, reg)
     error("@access is only valid inside @task")
+end
+
+"""
+Macro to record a list of accesses inside a `@task` body.
+Entries must be `(obj, eff, reg)` tuples.
+"""
+macro accesses(block)
+    error("@accesses is only valid inside @task")
 end
 
 """

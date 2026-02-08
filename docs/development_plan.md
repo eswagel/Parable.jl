@@ -183,7 +183,7 @@ Implementation notes:
 
 ## `src/reduce_priv.jl`
 
-Optional reduction-privatization strategy (MVP “phase” version).
+Reduction privatization backend (MVP “phase” version).
 
 Purpose:
 - Allow concurrent `Reduce(op)` tasks targeting the same `(obj, region)` without atomics by writing into private buffers and combining afterward.
@@ -193,6 +193,12 @@ Minimal MVP approach (coarse):
 - If any `Reduce` accesses exist, allocate per-thread private storage per `(obj, region, op)`.
 - Wrap task thunks so their `Reduce` targets are redirected to private buffers.
 - After all tasks, run combine thunks that fold private buffers into the real object.
+
+Implementation checklist:
+- Implement `execute_privatize!` so `reduce_strategy=:privatize` runs.
+- Add reducer allocation + combine path for `Block` and `Whole` over arrays.
+- Provide a fallback hook for `Key(...)` via a user mapping callback.
+- Add tests that verify parallel reductions produce the same result as serial.
 
 What’s in this file:
 - `execute!(dag; reduce_strategy=:serialize|:privatize)` dispatch
@@ -220,6 +226,11 @@ Expands into:
 ### `@access obj Effect() Region()`
 Expands into:
 - `push!(task.accesses, Access(objectid(obj), obj, eff, reg))`
+
+### `@accesses begin ... end`
+Block form for declaring accesses outside the task body:
+- Intended to reduce boilerplate in task definitions.
+- Expands into a list of `@access`-style entries appended to the task.
 
 ### `@dag begin ... end`
 Creates a `DAGBuilder` context:
@@ -268,6 +279,7 @@ Make the system trustable.
 ### `test/test_reduce_priv.jl`
 - Two tasks reducing into same region run concurrently (if enabled)
 - Result matches serial reduction.
+- Histogram reductions combine correctly.
 
 ---
 
@@ -288,6 +300,13 @@ Make the system trustable.
   - `reduce_strategy=:serialize` (correct baseline)
   - `reduce_strategy=:privatize` (more parallelism)
 
+### `examples/04_histogram.jl`
+- Simple histogramming example to showcase reduction privatization.
+- Split input data into blocks; each task reduces into shared bins.
+- Demonstrate:
+  - `reduce_strategy=:serialize` vs `:privatize`
+  - correctness match to a serial histogram
+
 ---
 
 ## Public API summary (MVP)
@@ -298,7 +317,7 @@ Make the system trustable.
   - `Access`, `TaskSpec`, `DAG`
 
 - Macros:
-  - `@task`, `@access`, `@dag`, `@spawn`
+  - `@task`, `@access`, `@accesses`, `@dag`, `@spawn`
 
 - Execution:
   - `execute!(dag; backend=:threads, reduce_strategy=:serialize)`
@@ -306,6 +325,25 @@ Make the system trustable.
 - Extensibility hooks:
   - `overlaps(::Region, ::Region)`
   - `region_indices(obj, reg)` (needed for reduction privatization beyond simple blocks)
+
+## Higher-level APIs (ergonomics phase)
+
+Goal: make common data-parallel use cases concise and reduce boilerplate.
+
+- `detangle_foreach(data, blocks; ...)`:
+  - Partition data into blocks and apply a task body.
+  - Automatically declares Read/Write/Reduce accesses based on user-supplied access spec.
+
+- `detangle_map(data, blocks; ...)`:
+  - Like foreach, but writes into an output array or returns a collected result.
+
+- `detangle_mapreduce(data, blocks, op; ...)`:
+  - Parallel reduction using Detangle access metadata (backed by privatization).
+
+Convenience building blocks:
+- `eachblock(data, block_size)` iterator to produce `Block` regions.
+- `@accesses` block for concise access declaration.
+- Task builder/pipeline helpers for common loops and DAG creation.
 
 ---
 
@@ -315,10 +353,11 @@ Make the system trustable.
 2) Conflicting writes force ordering; non-conflicting tasks run concurrently.
 3) A particle-style demo works with cellpair tasks (even if conservative).
 4) Diagnostics can explain why two tasks are ordered.
+5) Reduction privatization runs and a simple histogram example demonstrates its value.
+6) Higher-level APIs and access blocks reduce boilerplate for common patterns.
 
 That’s enough to validate the concept and decide whether to invest in:
 - incremental/indexed dependency building
 - better region inference
 - distributed/GPU backends
 - richer reduction semantics
-
