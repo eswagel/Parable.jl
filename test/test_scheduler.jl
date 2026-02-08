@@ -73,7 +73,7 @@
     execute_threads!(dag_small; nworkers=8)
     @test log == ["only"]
 
-    # reduce_strategy dispatch: serialize works, privatize errors for now
+    # reduce_strategy dispatch: serialize and privatize both work
     @test execute!(dag; backend=:threads, reduce_strategy=:serialize) === dag
-    @test_throws ErrorException execute!(dag; backend=:threads, reduce_strategy=:privatize)
+    @test execute!(dag; backend=:threads, reduce_strategy=:privatize) === dag
 end
