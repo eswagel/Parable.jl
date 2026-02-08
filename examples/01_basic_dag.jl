@@ -6,19 +6,25 @@ obj = Ref(0)
 dag = Detangle.@dag begin
     # First task writes a fresh value.
     Detangle.@spawn Detangle.@task "init" begin
-        Detangle.@access obj Write() Whole()
+        Detangle.@accesses begin
+            (obj, Write(), Whole())
+        end
         obj[] = 1
     end
 
     # Second task mutates the same object.
     Detangle.@spawn Detangle.@task "bump" begin
-        Detangle.@access obj ReadWrite() Whole()
+        Detangle.@accesses begin
+            (obj, ReadWrite(), Whole())
+        end
         obj[] += 1
     end
 
     # Final task reads the result.
     Detangle.@spawn Detangle.@task "read" begin
-        Detangle.@access obj Read() Whole()
+        Detangle.@accesses begin
+            (obj, Read(), Whole())
+        end
         println("value = ", obj[])
     end
 end
