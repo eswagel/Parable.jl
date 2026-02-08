@@ -22,6 +22,7 @@ Detangle.jl/
     scheduler_threads.jl
     reduce_priv.jl
     macros.jl
+    convenience.jl
     diagnostics.jl
   test/
     runtests.jl
@@ -29,10 +30,12 @@ Detangle.jl/
     test_dag.jl
     test_scheduler.jl
     test_reduce_priv.jl
+    test_convenience.jl
   examples/
     01_basic_dag.jl
-    02_blocked_array_mapreduce.jl
-    03_particles_cellpairs.jl
+    02_block_sum.jl
+    03_molecular_dynamics.jl
+    04_histogram.jl
 ```
 
 ---
@@ -47,7 +50,7 @@ Package entrypoint.
   - Effects: `Read`, `Write`, `ReadWrite`, `Reduce`
   - Regions: `Whole`, `Key`, `Block`, `Tile`, `IndexSet`
   - Task/DAG: `TaskSpec`, `Access`, `DAG`, `@dag`, `@spawn`, `execute!`
-  - Macros: `@task`, `@access`
+  - Macros: `@task`, `@access`, `@accesses`
 
 ---
 
@@ -281,6 +284,11 @@ Make the system trustable.
 - Result matches serial reduction.
 - Histogram reductions combine correctly.
 
+### `test/test_convenience.jl`
+- `eachblock`, `detangle_foreach` basics
+- multiple-task returns per block
+- `detangle_map` and `detangle_mapreduce`
+
 ---
 
 ## Examples
@@ -288,17 +296,13 @@ Make the system trustable.
 ### `examples/01_basic_dag.jl`
 - 3 tasks with explicit read/write dependencies.
 
-### `examples/02_blocked_array_mapreduce.jl`
+### `examples/02_block_sum.jl`
 - Partition `1:N` into blocks.
-- Spawn block tasks that `Reduce(+)` into a global vector or scalar.
+- Each task reads a block and writes a partial sum (per-block slot).
 
-### `examples/03_particles_cellpairs.jl`
-- Cell-pair tasks:
-  - `x => Read(Whole())`
-  - `F => Reduce(+) Key(cellA)` and `Key(cellB)`
-- Demonstrate:
-  - `reduce_strategy=:serialize` (correct baseline)
-  - `reduce_strategy=:privatize` (more parallelism)
+### `examples/03_molecular_dynamics.jl`
+- MD demo with spatial binning and per-block force/integration tasks.
+- Saves frames and can build an animation HTML.
 
 ### `examples/04_histogram.jl`
 - Simple histogramming example to showcase reduction privatization.
@@ -330,15 +334,14 @@ Make the system trustable.
 
 Goal: make common data-parallel use cases concise and reduce boilerplate.
 
-- `detangle_foreach(data, blocks; ...)`:
-  - Partition data into blocks and apply a task body.
-  - Automatically declares Read/Write/Reduce accesses based on user-supplied access spec.
-
-- `detangle_map(data, blocks; ...)`:
-  - Like foreach, but writes into an output array or returns a collected result.
-
-- `detangle_mapreduce(data, blocks, op; ...)`:
-  - Parallel reduction using Detangle access metadata (backed by privatization).
+- `detangle_foreach(blocks; ...)`:
+  - Apply a task builder over block ranges.
+- `detangle_map(data, blocks, f)`:
+  - Elementwise transform into a new output array (returns `dag, dest`).
+- `detangle_map!(dest, data, blocks, f)`:
+  - Elementwise transform into a provided output array.
+- `detangle_mapreduce(data, blocks, op, mapf)`:
+  - Parallel reduction using `Reduce(op)` and `reduce_add!` (returns `dag, acc`).
 
 Convenience building blocks:
 - `eachblock(data, block_size)` iterator to produce `Block` regions.
