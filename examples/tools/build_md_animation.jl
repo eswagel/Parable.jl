@@ -82,16 +82,17 @@ if isfile(example_path)
     for line in eachline(example_path)
         m = match(r"^\\s*particle_radius\\s*=\\s*([0-9.eE+-]+)", line)
         if m !== nothing
-            particle_radius = parse(Float64, m.captures[1])
+            global particle_radius = parse(Float64, m.captures[1])
             break
         end
     end
 end
 for arg in ARGS
     if startswith(arg, "--radius=")
-        particle_radius = parse(Float64, split(arg, "=", limit=2)[2])
+        global particle_radius = parse(Float64, split(arg, "=", limit=2)[2])
     end
 end
 
-build_animation_html(frame_paths, out_path; particle_radius=particle_radius)
-println("Wrote ", out_path, " (radius=", particle_radius, ")")
+visual_radius = 0.6 * particle_radius
+build_animation_html(frame_paths, out_path; particle_radius=visual_radius)
+println("Wrote ", out_path, " (radius=", visual_radius, ")")

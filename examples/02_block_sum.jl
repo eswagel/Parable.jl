@@ -26,17 +26,15 @@ function serial_total(data, blocks)
 end
 
 # Precompute block ranges so each task declares a non-overlapping region.
-blocks = [i:min(i + block_size - 1, n) for i in 1:block_size:n]
+blocks = eachblock(n, block_size)
 partials = zeros(Int, length(blocks))
 
-dag = Detangle.@dag begin
-    for (bi, r) in enumerate(blocks)
-        # Each task reads its block and writes one slot in the partials array.
-        Detangle.@spawn Detangle.@task "block-$bi" begin
-            Detangle.@access data Read() Block(r)
-            Detangle.@access partials Write() Key(bi)
-            partials[bi] = block_sum(data, r)
-        end
+dag = detangle_foreach(blocks) do r, bi
+    # Each task reads its block and writes one slot in the partials array.
+    Detangle.@task "block-$bi" begin
+        Detangle.@access data Read() Block(r)
+        Detangle.@access partials Write() Key(bi)
+        partials[bi] = block_sum(data, r)
     end
 end
 

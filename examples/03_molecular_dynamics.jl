@@ -223,3 +223,5 @@ for step in 1:steps
 end
 
 println("completed ", steps, " steps with ", 4 * length(blocks) + 2, " tasks/step")
+println("frames written to ", output_dir)
+include(joinpath(@__DIR__, "tools", "build_md_animation.jl"))

@@ -17,7 +17,7 @@ for i in 1:n
     bin = clamp(Int(round(x)), 1, nbins)
     data[i] = bin
 end
-blocks = [i:min(i + block_size - 1, n) for i in 1:block_size:n]
+blocks = eachblock(n, block_size)
 # Extra work to make each update heavier without changing the bin.
 @inline function extra_work(x::Int, i::Int)
     v = x + i
@@ -29,15 +29,13 @@ end
 
 hist = zeros(Int, nbins)
 
-dag = Detangle.@dag begin
-    for (bi, r) in enumerate(blocks)
-        Detangle.@spawn Detangle.@task "hist-$bi" begin
-            Detangle.@access hist Reduce(+) Whole()
-            @inbounds for i in r
-                bin = data[i]
-                extra_work(bin, i) # Adds compute without changing the bin, so parallelism has real work to speed up.
-                Detangle.reduce_add!(hist, +, Whole(), bin, 1) # Route Reduce(+) into privatized buffers when enabled.
-            end
+dag = detangle_foreach(blocks) do r, bi
+    Detangle.@task "hist-$bi" begin
+        Detangle.@access hist Reduce(+) Whole()
+        @inbounds for i in r
+            bin = data[i]
+            extra_work(bin, i) # Adds compute without changing the bin, so parallelism has real work to speed up.
+            Detangle.reduce_add!(hist, +, Whole(), bin, 1) # Route Reduce(+) into privatized buffers when enabled.
         end
     end
 end
