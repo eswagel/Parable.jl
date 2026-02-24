@@ -2,6 +2,13 @@
 
 Use the scripts in `examples/` as full tutorials.
 
+During docs build, numbered example scripts (for example `01_basic_dag.jl`) are
+automatically converted into tutorial pages and added to the navigation under
+this section.
+
+Conversion is configured with `execute=false`, so examples are rendered as
+documentation without being run as part of the docs build.
+
 ## 1. Basic DAG construction
 
 File: `examples/01_basic_dag.jl`
