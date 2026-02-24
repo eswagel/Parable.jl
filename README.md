@@ -8,11 +8,18 @@ schedules tasks on Julia threads.
 
 ## Installation
 
-To install Detangle.jl, use the Julia package manager:
+If Detangle is registered in General:
 
 ```
 julia> using Pkg
 julia> Pkg.add("Detangle")
+```
+
+If you are installing before registry publication:
+
+```julia
+julia> using Pkg
+julia> Pkg.add(url="https://github.com/eswagel/Detangle.jl")
 ```
 
 ## Tiny example

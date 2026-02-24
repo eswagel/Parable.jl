@@ -204,6 +204,7 @@ makedocs(
     modules = [Detangle],
     format = Documenter.HTML(
         prettyurls = pretty,
+        edit_link = "main",
         assets = String[],
     ),
     checkdocs = :exports,
@@ -220,7 +221,7 @@ makedocs(
     ],
 )
 
-# Uncomment and set the repo URL to publish on GitHub Pages.
-# deploydocs(
-#     repo = "github.com/USER/Detangle.jl.git",
-# )
+deploydocs(
+    repo = "github.com/eswagel/Detangle.jl.git",
+    devbranch = "main",
+)
