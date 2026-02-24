@@ -1,9 +1,16 @@
 """
-Convenience helpers to reduce boilerplate when building DAGs.
+Convenience helpers for block-based DAG construction.
 """
 
 """
-Create contiguous unit ranges that cover `1:n` with the given `block_size`.
+    eachblock(n::Integer, block_size::Integer) -> Vector{UnitRange{Int}}
+
+Split `1:n` into contiguous blocks of size `block_size` (last block may be
+shorter).
+
+# Arguments
+- `n`: Number of logical elements.
+- `block_size`: Positive block size.
 """
 function eachblock(n::Integer, block_size::Integer)
     n <= 0 && return UnitRange{Int}[]
@@ -18,12 +25,25 @@ function eachblock(n::Integer, block_size::Integer)
 end
 
 """
-Convenience overload for arrays.
+    eachblock(data::AbstractArray, block_size::Integer) -> Vector{UnitRange{Int}}
+
+Convenience overload equivalent to `eachblock(length(data), block_size)`.
 """
 eachblock(data::AbstractArray, block_size::Integer) = eachblock(length(data), block_size)
 
 """
-Construct a task from a list of access triples `(obj, eff, reg)` and a thunk.
+    task_from_accesses(
+        name::String,
+        accesses::AbstractVector,
+        thunk::Function,
+    ) -> TaskSpec
+
+Build a `TaskSpec` from a list of access tuples and a zero-arg thunk.
+
+# Arguments
+- `name`: Task name.
+- `accesses`: Iterable of `(obj, eff, reg)` tuples.
+- `thunk`: Task body.
 """
 function task_from_accesses(name::String, accesses::AbstractVector, thunk::Function)
     t = TaskSpec(name, thunk)
@@ -36,8 +56,14 @@ function task_from_accesses(name::String, accesses::AbstractVector, thunk::Funct
 end
 
 """
-Build a DAG by applying `task_builder` to each block.
-`task_builder` must return a TaskSpec.
+    detangle_foreach(blocks, task_builder::Function; finalize::Bool=true) -> DAG
+
+Build a DAG by applying `task_builder(r, i)` to each block.
+
+# Arguments
+- `blocks`: Block collection (commonly ranges from `eachblock`).
+- `task_builder`: Function returning a `TaskSpec` or collection of `TaskSpec`.
+- `finalize`: If `true`, calls `finalize!` before returning.
 """
 function detangle_foreach(blocks, task_builder::Function; finalize::Bool=true)
     dag = DAG()
@@ -59,13 +85,23 @@ function detangle_foreach(blocks, task_builder::Function; finalize::Bool=true)
 end
 
 """
-Do-block friendly signature: `detangle_foreach(blocks) do r, i ... end`.
+    detangle_foreach(task_builder::Function, blocks; finalize::Bool=true) -> DAG
+
+Do-block friendly overload:
+
+```julia
+detangle_foreach(blocks) do r, i
+    ...
+end
+```
 """
 detangle_foreach(task_builder::Function, blocks; finalize::Bool=true) =
     detangle_foreach(blocks, task_builder; finalize=finalize)
 
 """
-Append tasks produced by `task_builder` directly into an existing DAG.
+    detangle_foreach!(dag::DAG, blocks, task_builder::Function) -> DAG
+
+Append tasks produced by `task_builder(r, i)` directly to an existing DAG.
 """
 function detangle_foreach!(dag::DAG, blocks, task_builder::Function)
     for (i, r) in enumerate(blocks)
@@ -85,15 +121,31 @@ function detangle_foreach!(dag::DAG, blocks, task_builder::Function)
 end
 
 """
-Do-block friendly signature: `detangle_foreach!(dag, blocks) do r, i ... end`.
+    detangle_foreach!(dag::DAG, task_builder::Function, blocks) -> DAG
+
+Do-block friendly overload for `detangle_foreach!`.
 """
 detangle_foreach!(dag::DAG, task_builder::Function, blocks) =
     detangle_foreach!(dag, blocks, task_builder)
 
 """
-Map `f` over `data` in blocks and write results into `dest`.
+    detangle_map!(
+        dest::AbstractVector,
+        data::AbstractVector,
+        blocks,
+        f::Function;
+        finalize::Bool=true,
+        name_prefix::String="map",
+    ) -> DAG
 
-`blocks` should be a collection of index ranges. `f` is applied elementwise.
+Create block tasks that apply `f` elementwise to `data` and write into `dest`.
+
+# Arguments
+- `dest`, `data`: Equal-length vectors.
+- `blocks`: Index ranges defining task partitions.
+- `f`: Elementwise transform.
+- `finalize`: Whether to finalize the returned DAG.
+- `name_prefix`: Task name prefix.
 """
 function detangle_map!(dest::AbstractVector, data::AbstractVector, blocks, f::Function;
     finalize::Bool=true,
@@ -114,7 +166,15 @@ function detangle_map!(dest::AbstractVector, data::AbstractVector, blocks, f::Fu
 end
 
 """
-Map `f` over `data` in blocks and return a new output vector plus the DAG.
+    detangle_map(
+        data::AbstractVector,
+        blocks,
+        f::Function;
+        finalize::Bool=true,
+        name_prefix::String="map",
+    ) -> Tuple{DAG, AbstractVector}
+
+Allocate an output vector, build a block map DAG, and return `(dag, dest)`.
 """
 function detangle_map(data::AbstractVector, blocks, f::Function;
     finalize::Bool=true,
@@ -125,10 +185,27 @@ function detangle_map(data::AbstractVector, blocks, f::Function;
 end
 
 """
-Reduce `data` in blocks using `mapf` to transform inputs and `op` to combine.
+    detangle_mapreduce(
+        data::AbstractVector,
+        blocks,
+        op::Function,
+        mapf::Function=identity;
+        finalize::Bool=true,
+        name_prefix::String="mapreduce",
+    ) -> Tuple{DAG, Vector}
 
-Returns `(dag, result)` where `result` is a length-1 vector storing the scalar.
-Use `reduce_strategy=:privatize` for parallel reductions.
+Build a block map-reduce DAG over `data`.
+
+# Arguments
+- `data`: Input vector.
+- `blocks`: Index ranges for per-task work.
+- `op`: Reduction operator used by `Reduce(op)` and `reduce_add!`.
+- `mapf`: Per-element transform before reduction.
+- `finalize`: Whether to finalize the returned DAG.
+- `name_prefix`: Task name prefix.
+
+# Returns
+- `(dag, acc)` where `acc` is a length-1 vector storing the reduced value.
 """
 function detangle_mapreduce(data::AbstractVector, blocks, op::Function, mapf::Function=identity;
     finalize::Bool=true,

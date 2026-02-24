@@ -15,14 +15,20 @@ _region_label(r::Region) = repr(r)
 _obj_label(a::Access) = string(summary(a.obj), "#", a.objid)
 
 """
-Print an access as `Effect obj region`.
+    show(io::IO, a::Access)
+
+Render an `Access` as a compact single-line summary:
+
+`Effect object#id region`
 """
 function Base.show(io::IO, a::Access)
     print(io, _eff_label(a.eff), " ", _obj_label(a), " ", _region_label(a.reg))
 end
 
 """
-Print a task name with a concise access summary.
+    show(io::IO, t::TaskSpec)
+
+Render a `TaskSpec` with name and condensed access list.
 """
 function Base.show(io::IO, t::TaskSpec)
     print(io, "TaskSpec(", repr(t.name), ", accesses=")
@@ -40,7 +46,14 @@ function Base.show(io::IO, t::TaskSpec)
 end
 
 """
-Return the first conflicting access pair between tasks, or `nothing`.
+    explain_conflict(
+        ti::TaskSpec,
+        tj::TaskSpec;
+        can_parallel_reduce::Bool=false,
+    ) -> Union{Nothing, Tuple{Access,Access}}
+
+Return the first conflicting access pair between `ti` and `tj`, or `nothing`
+when no conflict is found.
 """
 function explain_conflict(ti::TaskSpec, tj::TaskSpec; can_parallel_reduce::Bool=false)
     for ai in ti.accesses
@@ -54,7 +67,13 @@ function explain_conflict(ti::TaskSpec, tj::TaskSpec; can_parallel_reduce::Bool=
 end
 
 """
-Print edges and level structure for a finalized DAG.
+    print_dag(dag::DAG; io::IO=stdout)
+
+Print adjacency and levelized structure for a finalized DAG.
+
+# Notes
+- If `dag` is not finalized, prints a message and returns.
+- Also warns when remaining indegrees suggest a cycle.
 """
 function print_dag(dag::DAG; io::IO=stdout)
     n = length(dag.tasks)

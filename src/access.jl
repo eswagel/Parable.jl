@@ -1,5 +1,13 @@
 """
-Access declaration tying an object identity to an effect and region.
+    Access
+
+Access metadata used for dependency analysis.
+
+# Fields
+- `objid::UInt64`: Stable object identity (`objectid(obj)`).
+- `obj::Any`: Original object reference (kept for diagnostics).
+- `eff::Effect`: Access effect (`Read`, `Write`, `ReadWrite`, `Reduce`).
+- `reg::Region`: Region descriptor over the object.
 """
 struct Access
     objid::UInt64
@@ -9,12 +17,16 @@ struct Access
 end
 
 """
-Return `(objectid(obj), obj)` for reuse when declaring accesses.
+    objkey(obj) -> (UInt64, Any)
+
+Return `(objectid(obj), obj)` for reuse in access construction and debugging.
 """
 objkey(obj) = (objectid(obj), obj)
 
 """
-Construct an `Access` from a concrete object, effect, and region.
+    access(obj, eff::Effect, reg::Region) -> Access
+
+Construct an `Access` record from an object, effect, and region.
 """
 function access(obj, eff::Effect, reg::Region)
     id, o = objkey(obj)

@@ -1,8 +1,20 @@
 """
-Execute a finalized DAG with optional reduction strategy.
+    execute!(
+        dag::DAG;
+        backend=:threads,
+        nworkers::Integer=Threads.nthreads(),
+        reduce_strategy=:serialize,
+    ) -> DAG
 
-Currently `reduce_strategy=:serialize` runs the standard scheduler; `:privatize`
-is a placeholder that errors until implemented.
+Execute a finalized DAG with the selected backend and reduction strategy.
+
+# Arguments
+- `backend`: `:threads` or `:serial`.
+- `nworkers`: Number of worker tasks when `backend=:threads`.
+- `reduce_strategy`: `:serialize` (default) or `:privatize`.
+
+# Returns
+- The executed `dag`.
 """
 function execute!(dag::DAG; backend=:threads, nworkers::Integer=Threads.nthreads(), reduce_strategy=:serialize)
     if reduce_strategy === :serialize
@@ -21,7 +33,16 @@ function execute!(dag::DAG; backend=:threads, nworkers::Integer=Threads.nthreads
 end
 
 """
-Threaded executor using Julia `Threads.@spawn`.
+    execute_threads!(dag::DAG; nworkers::Integer=Threads.nthreads()) -> DAG
+
+Execute `dag` using Julia threads with a ready-queue scheduler.
+
+# Arguments
+- `nworkers`: Number of worker tasks spawned to process ready nodes.
+
+# Notes
+- Assumes `dag` has valid `edges`/`indeg` from `finalize!`.
+- Rethrows the first task error after workers complete.
 """
 function execute_threads!(dag::DAG; nworkers::Integer=Threads.nthreads())
     n = length(dag.tasks)
@@ -77,7 +98,11 @@ function execute_threads!(dag::DAG; nworkers::Integer=Threads.nthreads())
 end
 
 """
-Serial executor useful for debugging dependency construction.
+    execute_serial!(dag::DAG) -> DAG
+
+Execute `dag` in topological order on the current thread.
+
+Useful for debugging and correctness baselines.
 """
 function execute_serial!(dag::DAG)
     n = length(dag.tasks)

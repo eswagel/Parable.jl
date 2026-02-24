@@ -1,6 +1,29 @@
 """
-Macro to declare a task with a name and body. `@access` statements record
-metadata; remaining statements form the task thunk.
+    @task name begin
+        ...
+    end
+
+Create a `TaskSpec` from a task body.
+
+# Behavior
+- Collects `@access obj eff reg` and `@accesses begin ... end` declarations into
+  `TaskSpec.accesses`.
+- Removes those access declarations from the runtime thunk so they are metadata
+  only.
+- Stores remaining statements as the task's zero-argument thunk.
+
+# Arguments
+- `name`: Task name expression that must evaluate to a `String`.
+- `begin ... end`: Task body containing access declarations and work.
+
+# Example
+```julia
+Detangle.@task "scale" begin
+    Detangle.@access x Read() Whole()
+    Detangle.@access y Write() Whole()
+    y .= 2 .* x
+end
+```
 """
 macro task(name, block)
     accesses_sym = gensym(:accesses)
@@ -99,29 +122,67 @@ macro task(name, block)
 end
 
 """
-Macro to record an access inside a `@task` body.
+    @access obj eff reg
+
+Declare one access inside a `@task` body.
+
+# Arguments
+- `obj`: Object being accessed.
+- `eff`: Effect instance (`Read()`, `Write()`, `ReadWrite()`, `Reduce(op)`).
+- `reg`: Region instance (`Whole()`, `Block(...)`, `Key(...)`, ...).
+
+# Notes
+- Valid only inside `@task`.
 """
 macro access(obj, eff, reg)
     error("@access is only valid inside @task")
 end
 
 """
-Macro to record a list of accesses inside a `@task` body.
-Entries must be `(obj, eff, reg)` tuples.
+    @accesses begin
+        (obj1, eff1, reg1)
+        (obj2, eff2, reg2)
+        ...
+    end
+
+Declare multiple accesses inside a `@task` body.
+
+Each entry must be a 3-tuple `(obj, eff, reg)`.
 """
 macro accesses(block)
     error("@accesses is only valid inside @task")
 end
 
 """
-Macro to append a task into the current DAG builder.
+    @spawn expr
+
+Append task expression `expr` to the current `@dag` builder.
+
+# Notes
+- `expr` should evaluate to a `TaskSpec` (or compatible value accepted by
+  `push!` on `DAG`).
+- Valid only within `@dag`.
 """
 macro spawn(expr)
     return esc(:(push!(__detangle_builder, $(expr))))
 end
 
 """
-Macro to build and finalize a DAG from spawned tasks.
+    @dag begin
+        ...
+    end
+
+Create a DAG builder context, collect tasks appended via `@spawn`, and return a
+finalized `DAG`.
+
+# Example
+```julia
+dag = Detangle.@dag begin
+    Detangle.@spawn Detangle.@task "t1" begin
+        ...
+    end
+end
+```
 """
 macro dag(block)
     builder = gensym(:builder)

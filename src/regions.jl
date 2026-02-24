@@ -1,29 +1,43 @@
 """
-Regions describe disjoint parts of a logical object used for conflict detection.
+    Region
+
+Abstract supertype for region descriptors used by access declarations.
+
+A region scopes an effect to a subset of an object so Detangle can distinguish
+independent accesses from conflicting ones.
 """
 abstract type Region end
 
 """
-Entire object.
+    Whole() <: Region
+
+Region representing an entire object.
 """
 struct Whole <: Region end
 
 """
-Single key within an associative container.
+    Key(k) <: Region
+
+Region representing a single logical key `k`, typically used for map-like
+containers or keyed partitions.
 """
 struct Key{K} <: Region
     k::K
 end
 
 """
-One-dimensional block over contiguous indices.
+    Block(r::UnitRange{Int}) <: Region
+
+One-dimensional contiguous index range.
 """
 struct Block <: Region
     r::UnitRange{Int}
 end
 
 """
-Two-dimensional tile over row/column ranges.
+    Tile(I::UnitRange{Int}, J::UnitRange{Int}) <: Region
+
+Two-dimensional rectangular tile defined by row range `I` and column range `J`.
 """
 struct Tile <: Region
     I::UnitRange{Int}
@@ -31,6 +45,8 @@ struct Tile <: Region
 end
 
 """
+    IndexSet(idxs::AbstractVector{Int}) <: Region
+
 Sparse set of explicit indices.
 """
 struct IndexSet{T<:AbstractVector{Int}} <: Region
@@ -38,12 +54,23 @@ struct IndexSet{T<:AbstractVector{Int}} <: Region
 end
 
 """
-Check whether two integer ranges overlap.
+    ranges_overlap(a::UnitRange{Int}, b::UnitRange{Int}) -> Bool
+
+Return `true` when integer ranges `a` and `b` intersect.
 """
 ranges_overlap(a::UnitRange{Int}, b::UnitRange{Int}) = max(first(a), first(b)) <= min(last(a), last(b))
 
 """
-Overlap semantics; default to conservative `true` for unknown combos.
+    overlaps(a::Region, b::Region) -> Bool
+
+Return whether regions `a` and `b` may overlap.
+
+# Semantics
+- `Whole()` overlaps everything.
+- `Key(k1)` overlaps `Key(k2)` only when `k1 == k2`.
+- `Block` and `Tile` use range intersection checks.
+- `IndexSet` currently uses a conservative overlap policy for `IndexSet` pairs.
+- Unknown region combinations default to conservative `true`.
 """
 overlaps(::Whole, ::Whole) = true
 overlaps(::Whole, ::Region) = true
@@ -60,7 +87,11 @@ overlaps(a::Block, b::Block) = ranges_overlap(a.r, b.r)
 overlaps(a::Tile, b::Tile) = ranges_overlap(a.I, b.I) && ranges_overlap(a.J, b.J)
 
 """
-Conservative default for index sets until a more precise checker is provided.
+    overlaps(a::IndexSet, b::IndexSet) -> Bool
+
+Conservative overlap check for sparse index sets.
+
+Currently returns `true` to avoid missed dependencies.
 """
 overlaps(::IndexSet, ::IndexSet) = true
 

@@ -1,10 +1,17 @@
 """
-Determine whether two accesses conflict.
+    conflicts(a::Access, b::Access; can_parallel_reduce::Bool=false) -> Bool
 
-Rules:
+Return whether two accesses require an ordering dependency.
+
+# Arguments
+- `a`, `b`: Access declarations to compare.
+- `can_parallel_reduce`: If `true`, allows `Reduce(op)` pairs with identical
+  `op` to proceed in parallel.
+
+# Rules
 - Different objects never conflict.
 - Non-overlapping regions never conflict.
-- Any write-ish effect conflicts unless both are `Reduce` with the same op and `can_parallel_reduce=true`.
+- Any write-like effect conflicts, except optional compatible reductions.
 """
 function conflicts(a::Access, b::Access; can_parallel_reduce::Bool=false)
     a.objid == b.objid || return false
@@ -20,7 +27,9 @@ function conflicts(a::Access, b::Access; can_parallel_reduce::Bool=false)
 end
 
 """
-Determine whether two tasks conflict based on any pair of their accesses.
+    task_conflicts(ti::TaskSpec, tj::TaskSpec; can_parallel_reduce::Bool=false) -> Bool
+
+Return `true` if any access pair across `ti` and `tj` conflicts.
 """
 function task_conflicts(ti::TaskSpec, tj::TaskSpec; can_parallel_reduce::Bool=false)
     any(conflicts(ai, aj; can_parallel_reduce=can_parallel_reduce) for ai in ti.accesses for aj in tj.accesses)

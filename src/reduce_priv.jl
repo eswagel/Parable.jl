@@ -1,9 +1,8 @@
 """
-Reduction privatization backend.
+Reduction privatization backend internals.
 
-This backend assumes task bodies use `reduce_add!` to perform reductions when
-`Reduce(op)` accesses are declared. In privatize mode, `reduce_add!` targets
-per-thread buffers and `combine!` folds them back into the real object.
+When enabled, `reduce_add!` updates per-thread buffers and `combine!` folds
+those buffers into destination objects after task execution.
 """
 
 mutable struct Reducer
@@ -14,7 +13,10 @@ mutable struct Reducer
 end
 
 """
-Key used to identify a reduction target: object id, region, and operator.
+    ReducerKey(objid, reg, op)
+
+Internal key identifying a reduction target by object identity, region, and
+operator.
 """
 ReducerKey(objid, reg, op) = (objid, reg, op)
 
@@ -26,7 +28,9 @@ end
 const _reduce_ctx = Ref{Union{Nothing, ReduceContext}}(nothing)
 
 """
-Return the identity element for common reduction operators.
+    _reduce_identity(op::Function, ::Type{T}) where {T}
+
+Internal helper that returns identity elements for supported operators.
 """
 function _reduce_identity(op::Function, ::Type{T}) where {T}
     if op === (+)
@@ -39,8 +43,12 @@ function _reduce_identity(op::Function, ::Type{T}) where {T}
 end
 
 """
-Allocate per-thread reducer buffers for all Reduce accesses in the DAG.
-Currently supports Whole/Block regions over AbstractVector targets.
+    alloc_reducers(dag::DAG; nthreads::Integer=Threads.maxthreadid()) -> ReduceContext
+
+Allocate per-thread reduction buffers for all `Reduce(...)` accesses in `dag`.
+
+# Supported targets
+- `AbstractVector` with regions `Whole()` and `Block(...)`.
 """
 function alloc_reducers(dag::DAG; nthreads::Integer=Threads.maxthreadid())
     reducers = Dict{Tuple{UInt64, Region, Function}, Reducer}()
@@ -81,8 +89,29 @@ function alloc_reducers(dag::DAG; nthreads::Integer=Threads.maxthreadid())
 end
 
 """
-Reduce a scalar `value` into `obj` at `idx` according to `op` and `reg`.
-Use this in task bodies when declaring `Reduce(op)` accesses.
+    reduce_add!(
+        obj::AbstractVector,
+        op::Function,
+        reg::Region,
+        idx::Int,
+        value,
+    ) -> AbstractVector
+
+Accumulate `value` into `obj[idx]` using reduction operator `op`.
+
+# Arguments
+- `obj`: Destination vector being reduced into.
+- `op`: Reduction operator (for example `+`).
+- `reg`: Declared reduction region (`Whole()` or `Block(...)`).
+- `idx`: Global index in `obj` to update.
+- `value`: Contribution to combine at `idx`.
+
+# Behavior
+- In normal execution, updates `obj` directly.
+- In privatized execution, updates a thread-local reduction buffer.
+
+# Notes
+- `reg` and `op` must match a declared `Reduce(op)` access for the task.
 """
 function reduce_add!(obj::AbstractVector, op::Function, reg::Region, idx::Int, value)
     ctx = _reduce_ctx[]
@@ -116,7 +145,10 @@ function reduce_add!(obj::AbstractVector, op::Function, reg::Region, idx::Int, v
 end
 
 """
-Combine all per-thread buffers into their corresponding real objects.
+    combine!(ctx::ReduceContext)
+
+Internal helper that folds thread-local reduction buffers into destination
+objects.
 """
 function combine!(ctx::ReduceContext)
     for reducer in values(ctx.reducers)
@@ -142,7 +174,23 @@ function combine!(ctx::ReduceContext)
 end
 
 """
-Execute a finalized DAG in reduction-privatization mode.
+    execute_privatize!(
+        dag::DAG;
+        backend=:threads,
+        nworkers::Integer=Threads.nthreads(),
+    ) -> DAG
+
+Execute `dag` with reduction privatization enabled.
+
+# Arguments
+- `backend`: `:threads` or `:serial`.
+- `nworkers`: Worker count for threaded backend.
+
+# Behavior
+- Re-finalizes with `can_parallel_reduce=true`.
+- Allocates reducer buffers for declared `Reduce` accesses.
+- Executes the DAG.
+- Combines per-thread buffers into real reduction targets.
 """
 function execute_privatize!(dag::DAG; backend=:threads, nworkers::Integer=Threads.nthreads())
     # Rebuild edges allowing parallel reduces with the same op.
