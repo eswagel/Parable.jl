@@ -105,8 +105,10 @@ function tutorial_output_section(stem::String, examples_dir::String, generated_a
             end
         end
 
-        frame_paths = sort(filter(p -> occursin(r"frame_\d+\.csv$", basename(p)),
-            readdir(output_dir; join=true)))
+        frame_paths = isdir(output_dir) ?
+            sort(filter(p -> occursin(r"frame_\d+\.csv$", basename(p)),
+                readdir(output_dir; join=true))) :
+            String[]
         if !isempty(frame_paths)
             dst = joinpath(generated_abs_dir, "03_molecular_dynamics_animation.html")
             write_md_animation_html(frame_paths, dst; particle_radius=0.12)
