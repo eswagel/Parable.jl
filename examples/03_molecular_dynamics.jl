@@ -2,6 +2,9 @@ using Detangle
 
 include(joinpath(@__DIR__, "md_utils.jl"))
 
+envint(key, default) = parse(Int, get(ENV, key, string(default)))
+envbool(key, default) = lowercase(get(ENV, key, default ? "true" : "false")) in ("1", "true", "yes", "on")
+
 # Simplified MD demo: per-block force/integration tasks with spatial binning.
 # Tasks declare which arrays/regions they read and write; Detangle uses that
 # information to order dependent work and expose safe parallelism.
@@ -30,10 +33,10 @@ n_cells_x = n_cells_y = ceil(Int, box / cutoff)
 k_spring = -10.0
 speed_mean = 1.0
 speed_std = 0.2
-steps = 5000
-save_frames = true
-frame_stride = 10
-progress_stride = 50
+steps = envint("DETANGLE_MD_STEPS", 5000)
+save_frames = envbool("DETANGLE_MD_SAVE_FRAMES", true)
+frame_stride = envint("DETANGLE_MD_FRAME_STRIDE", 10)
+progress_stride = envint("DETANGLE_MD_PROGRESS_STRIDE", 50)
 output_dir = joinpath(@__DIR__, "output")
 
 println("initializing particles...")
