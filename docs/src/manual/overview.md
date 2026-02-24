@@ -1,36 +1,23 @@
 # Manual Overview
 
-Detangle models parallel work as tasks plus declared accesses.
+This manual is split into three layers:
 
-## Core concepts
+- **Overview (this page):** mental model plus one runnable example.
+- **Concepts and Semantics:** detailed rules for effects, regions, and conflict detection.
+- **API Reference:** generated docs for all exported types, functions, and macros.
 
-- `TaskSpec`: a task name, access metadata, and a zero-argument thunk.
-- `Access`: `(object, effect, region)` metadata used for conflict analysis.
-- `DAG`: tasks plus dependency edges inferred from access conflicts.
-- Backends: serial and threaded execution of the same finalized DAG.
+If you are new to Detangle, start here, run the example, then continue to the Concepts page.
 
-## Effects and regions
+## The mental model
 
-Effects describe intent:
+Detangle separates:
 
-- `Read()`
-- `Write()`
-- `ReadWrite()`
-- `Reduce(op)`
+- **Task code**: the computation you want to run.
+- **Access metadata**: what each task reads/writes/reduces.
 
-Regions scope where the effect applies:
+From that metadata, Detangle builds a dependency DAG and executes it safely (serially or on threads).
 
-- `Whole()`
-- `Block(r::UnitRange)`
-- `Key(k)`
-- `Tile(I, J)`
-- `IndexSet(idxs)`
-
-The scheduler uses object identity + region overlap + effects to determine dependencies.
-
-## Building DAGs
-
-The macro workflow is the main entry point:
+## A complete example
 
 ```julia
 using Detangle
@@ -45,25 +32,28 @@ dag = Detangle.@dag begin
             Detangle.@access x Read() Block(r)
             Detangle.@access y Write() Block(r)
             @inbounds for idx in r
-                y[idx] = 2x[idx]
+                y[idx] = 2 * x[idx]
             end
         end
     end
 end
 
+# Optional: inspect the inferred dependency structure.
+print_dag(dag)
+
+# Run serially first for correctness/debuggability.
+execute_serial!(dag)
+
+# Then run threaded for parallel execution.
 execute_threads!(dag)
 ```
 
-There are also convenience builders such as `detangle_foreach`, `detangle_map`, and `detangle_mapreduce`.
+Why these tasks can run in parallel:
 
-## Debugging and inspection
+- Every task only reads from `x`.
+- Every task writes to a non-overlapping `Block(r)` of `y`.
 
-- `print_dag(dag)`: print edge structure.
-- `explain_conflict(taskA, taskB)`: inspect why two tasks conflict.
+## Where to go next
 
-## API reference
-
-```@autodocs
-Modules = [Detangle]
-Order   = [:module, :type, :function, :macro]
-```
+- [Concepts and Semantics](concepts.md)
+- [API Reference](api_reference.md)

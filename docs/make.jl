@@ -17,6 +17,8 @@ makedocs(
         "Getting Started" => "getting_started.md",
         "Manual" => [
             "Overview" => "manual/overview.md",
+            "Concepts and Semantics" => "manual/concepts.md",
+            "API Reference" => "manual/api_reference.md",
         ],
         "Tutorials" => [
             "Overview" => "tutorials/overview.md",
