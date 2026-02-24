@@ -1,6 +1,6 @@
 # Getting Started
 
-This page shows the minimum workflow to install Detangle, build a small DAG, and run it.
+This page covers the minimum path to install Detangle, build a small DAG, and run it safely.
 
 ## Installation
 
@@ -52,7 +52,7 @@ execute_serial!(dag)
 
 Expected output includes `value = 2`.
 
-## Run on threads
+## Then Run On Threads
 
 ```julia
 execute_threads!(dag)
@@ -64,8 +64,14 @@ Set Julia thread count before startup, for example:
 JULIA_NUM_THREADS=8 julia
 ```
 
-## Next steps
+## Common first checks
+
+- If behavior is unexpected, run `execute_serial!` first.
+- Use `print_dag(dag)` to inspect inferred dependencies.
+- Verify `@access`/`@accesses` declarations match what task code actually touches.
+
+## Next Steps
 
 - Read [Manual Overview](manual/overview.md) for concepts and APIs.
-- Run end-to-end scripts in `examples/`.
+- Run end-to-end scripts in `examples/` via [Tutorials](tutorials/overview.md).
 - See [Comparison](comparison.md) for when Detangle is the right fit.

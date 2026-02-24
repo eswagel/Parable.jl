@@ -2,6 +2,20 @@
 
 Detangle is best when you want explicit, inspectable task dependencies from effect and region annotations.
 
+## Quick fit check
+
+Detangle is usually a strong fit when:
+
+- you have shared-memory workloads,
+- work is naturally task-graph shaped,
+- and you want dependency logic to be explicit in code.
+
+It is usually not the first tool to reach for when:
+
+- a single `Threads.@threads` loop already models the whole workload,
+- the workload is primarily distributed across machines,
+- or dependency structure is trivial and static.
+
 ## Detangle vs `Threads.@threads`
 
 `Threads.@threads` is great for regular data-parallel loops.

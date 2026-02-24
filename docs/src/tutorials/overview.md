@@ -1,13 +1,14 @@
 # Tutorials Overview
 
-Use the scripts in `examples/` as full tutorials.
+Tutorial pages are generated from numbered scripts in `examples/` (for example, `01_basic_dag.jl`) and added to the docs navigation automatically.
 
-During docs build, numbered example scripts (for example `01_basic_dag.jl`) are
-automatically converted into tutorial pages and added to the navigation under
-this section.
+## How tutorial generation works
 
-Conversion is configured with `execute=false`, so examples are rendered as
-documentation without being run as part of the docs build.
+- Source code is rendered directly from each example script.
+- Most tutorials are rendered-only (the script is not executed during docs build).
+- Some tutorials include generated output sections:
+  - Molecular dynamics: animation generated from existing frame CSVs in `examples/output/`
+  - Histogram: real terminal output captured from running `examples/04_histogram.jl`
 
 ## 1. Basic DAG construction
 

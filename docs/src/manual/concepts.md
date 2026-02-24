@@ -14,6 +14,15 @@ A useful way to read this is:
 - `Access` says *what that task touches*.
 - `DAG` says *what must happen before what*.
 
+## Access declaration pattern
+
+In task code, accesses are typically declared with:
+
+- `@access obj effect region` for one access
+- `@accesses begin ... end` for a batch of access tuples
+
+The declarations should match what the task body actually touches.
+
 ## Effects
 
 Effects describe **how** a task interacts with data.
@@ -49,6 +58,13 @@ Two accesses conflict when all three are true:
 3. At least one write-like effect.
 
 If accesses conflict, Detangle inserts an ordering edge in the DAG.
+
+## Common pitfalls
+
+- Under-declaring writes as reads: this can hide true dependencies.
+- Overly broad regions (for example `Whole()` everywhere): this can serialize work unnecessarily.
+- Mismatching declared regions and actual indexing in the task body.
+- Assuming `IndexSet` is fully precise: overlap checks are conservative for `IndexSet` pairs.
 
 ## Practical examples
 

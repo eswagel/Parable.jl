@@ -8,6 +8,14 @@ This manual is split into three layers:
 
 If you are new to Detangle, start here, run the example, then continue to the Concepts page.
 
+## Who this manual is for
+
+This manual assumes you are comfortable with Julia and want to:
+
+- express task-level parallel work,
+- make data dependencies explicit,
+- and debug scheduling behavior with predictable rules.
+
 ## The mental model
 
 Detangle separates:
@@ -15,7 +23,8 @@ Detangle separates:
 - **Task code**: the computation you want to run.
 - **Access metadata**: what each task reads/writes/reduces.
 
-From that metadata, Detangle builds a dependency DAG and executes it safely (serially or on threads).
+From that metadata, Detangle builds a dependency DAG and executes it safely with
+either a serial or threaded backend.
 
 ## A complete example
 
@@ -52,6 +61,8 @@ Why these tasks can run in parallel:
 
 - Every task only reads from `x`.
 - Every task writes to a non-overlapping `Block(r)` of `y`.
+
+If the writes overlapped, Detangle would introduce ordering edges automatically.
 
 ## Where to go next
 

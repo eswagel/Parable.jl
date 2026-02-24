@@ -50,5 +50,8 @@ execute_threads!(dag)
 
 ## More details
 
-- Full documentation: `docs/`
+- Documentation home: `docs/` (or `docs/src/index.md`)
+- Getting started guide: `docs/src/getting_started.md`
+- Manual overview: `docs/src/manual/overview.md`
+- Tutorials: `docs/src/tutorials/overview.md`
 - Examples: `examples/`
