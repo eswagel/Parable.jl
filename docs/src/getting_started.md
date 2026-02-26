@@ -1,12 +1,12 @@
 # Getting Started
 
-This page covers the minimum path to install Parable, build a small DAG, and run it safely.
+This page covers the minimum path to install Parables, build a small DAG, and run it safely.
 
 ## Installation
 
 ```julia
 import Pkg
-Pkg.add("Parable")
+Pkg.add("Parables")
 ```
 
 For local development in this repository:
@@ -19,27 +19,27 @@ Pkg.develop(path=".")
 ## First DAG
 
 ```julia
-using Parable
+using Parables
 
 obj = Ref(0)
 
-dag = Parable.@dag begin
-    Parable.@spawn Parable.@task "init" begin
-        Parable.@accesses begin
+dag = Parables.@dag begin
+    Parables.@spawn Parables.@task "init" begin
+        Parables.@accesses begin
             (obj, Write(), Whole())
         end
         obj[] = 1
     end
 
-    Parable.@spawn Parable.@task "bump" begin
-        Parable.@accesses begin
+    Parables.@spawn Parables.@task "bump" begin
+        Parables.@accesses begin
             (obj, ReadWrite(), Whole())
         end
         obj[] += 1
     end
 
-    Parable.@spawn Parable.@task "read" begin
-        Parable.@accesses begin
+    Parables.@spawn Parables.@task "read" begin
+        Parables.@accesses begin
             (obj, Read(), Whole())
         end
         println("value = ", obj[])
@@ -74,4 +74,4 @@ JULIA_NUM_THREADS=8 julia
 
 - Read [Manual Overview](manual/overview.md) for concepts and APIs.
 - Run end-to-end scripts in `examples/` via [Tutorials](tutorials/overview.md).
-- See [Comparison](comparison.md) for when Parable is the right fit.
+- See [Comparison](comparison.md) for when Parables is the right fit.

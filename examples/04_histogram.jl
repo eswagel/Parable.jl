@@ -1,4 +1,4 @@
-using Parable
+using Parables
 using Base.Threads
 
 # Example: histogramming with reduction privatization.
@@ -29,13 +29,13 @@ end
 
 hist = zeros(Int, nbins)
 
-dag = parable_foreach(blocks) do r, bi
-    Parable.@task "hist-$bi" begin
-        Parable.@access hist Reduce(+) Whole()
+dag = parables_foreach(blocks) do r, bi
+    Parables.@task "hist-$bi" begin
+        Parables.@access hist Reduce(+) Whole()
         @inbounds for i in r
             bin = data[i]
             extra_work(bin, i) # Adds compute without changing the bin, so parallelism has real work to speed up.
-            Parable.reduce_add!(hist, +, Whole(), bin, 1) # Route Reduce(+) into privatized buffers when enabled.
+            Parables.reduce_add!(hist, +, Whole(), bin, 1) # Route Reduce(+) into privatized buffers when enabled.
         end
     end
 end

@@ -1,19 +1,19 @@
-# Parable.jl
+# Parables.jl
 
-[![Build Status](https://github.com/eswagel/Parable.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/eswagel/Parable.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Documentation](https://github.com/eswagel/Parable.jl/actions/workflows/Documentation.yml/badge.svg?branch=main)](https://github.com/eswagel/Parable.jl/actions/workflows/Documentation.yml?query=branch%3Amain)
+[![Build Status](https://github.com/eswagel/Parables.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/eswagel/Parables.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Documentation](https://github.com/eswagel/Parables.jl/actions/workflows/Documentation.yml/badge.svg?branch=main)](https://github.com/eswagel/Parables.jl/actions/workflows/Documentation.yml?query=branch%3Amain)
 
-Parable.jl is a Julia runtime for safe parallel execution with explicit data-access semantics.
-You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over regions (`Whole`, `Block`, `Key`, `Tile`, `IndexSet`), and Parable builds a dependency DAG that runs serially or on threads.
+Parables.jl is a Julia runtime for safe parallel execution with explicit data-access semantics.
+You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over regions (`Whole`, `Block`, `Key`, `Tile`, `IndexSet`), and Parables builds a dependency DAG that runs serially or on threads.
 
 ## Documentation
 
-[Documentation Home](https://eswagel.github.io/Parable.jl/dev/)
+[Documentation Home](https://eswagel.github.io/Parables.jl/dev/)
 
-- [Getting Started](https://eswagel.github.io/Parable.jl/dev/getting_started/)
-- [Manual](https://eswagel.github.io/Parable.jl/dev/manual/overview/)
-- [Tutorials](https://eswagel.github.io/Parable.jl/dev/tutorials/overview/)
-- [API Reference](https://eswagel.github.io/Parable.jl/dev/manual/api_reference/)
+- [Getting Started](https://eswagel.github.io/Parables.jl/dev/getting_started/)
+- [Manual](https://eswagel.github.io/Parables.jl/dev/manual/overview/)
+- [Tutorials](https://eswagel.github.io/Parables.jl/dev/tutorials/overview/)
+- [API Reference](https://eswagel.github.io/Parables.jl/dev/manual/api_reference/)
 
 ## Installation
 
@@ -21,40 +21,40 @@ From General:
 
 ```julia
 using Pkg
-Pkg.add("Parable")
+Pkg.add("Parables")
 ```
 
 From GitHub (if needed):
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/eswagel/Parable.jl")
+Pkg.add(url="https://github.com/eswagel/Parables.jl")
 ```
 
 ## Quick Start
 
 ```julia
-using Parable
+using Parables
 
 obj = Ref(0)
 
-dag = Parable.@dag begin
-    Parable.@spawn Parable.@task "init" begin
-        Parable.@accesses begin
+dag = Parables.@dag begin
+    Parables.@spawn Parables.@task "init" begin
+        Parables.@accesses begin
             (obj, Write(), Whole())
         end
         obj[] = 1
     end
 
-    Parable.@spawn Parable.@task "bump" begin
-        Parable.@accesses begin
+    Parables.@spawn Parables.@task "bump" begin
+        Parables.@accesses begin
             (obj, ReadWrite(), Whole())
         end
         obj[] += 1
     end
 
-    Parable.@spawn Parable.@task "read" begin
-        Parable.@accesses begin
+    Parables.@spawn Parables.@task "read" begin
+        Parables.@accesses begin
             (obj, Read(), Whole())
         end
         println("value = ", obj[])
@@ -72,7 +72,7 @@ execute_threads!(dag)  # then run parallel
 - Effects: `Read`, `Write`, `ReadWrite`, `Reduce`
 - Regions: `Whole`, `Block`, `Key`, `Tile`, `IndexSet`
 - Execution: `execute!`, `execute_serial!`, `execute_threads!`, `execute_privatize!`
-- Helpers: `eachblock`, `parable_foreach`, `parable_map`, `parable_mapreduce`
+- Helpers: `eachblock`, `parables_foreach`, `parables_map`, `parables_mapreduce`
 
 ## Examples
 
@@ -83,7 +83,7 @@ execute_threads!(dag)  # then run parallel
 
 ## Contributing
 
-Contributions to Parable.jl are welcome! To contribute, please submit a pull request or raise an issue.
+Contributions to Parables.jl are welcome! To contribute, please submit a pull request or raise an issue.
 
 ## License
 

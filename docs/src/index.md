@@ -1,7 +1,7 @@
-# Parable.jl
+# Parables.jl
 
-Parable.jl is a Julia runtime for safe parallel execution.
-You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over explicit regions (`Whole`, `Block`, `Key`, ...), and Parable builds a dependency DAG that can run serially or on threads.
+Parables.jl is a Julia runtime for safe parallel execution.
+You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over explicit regions (`Whole`, `Block`, `Key`, ...), and Parables builds a dependency DAG that can run serially or on threads.
 
 ## Start Here
 
@@ -9,7 +9,7 @@ You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over explicit
 2. Run one tutorial from [Tutorials](tutorials/overview.md)
 3. Use the [Manual](manual/overview.md) for deeper semantics and API details
 
-## Why Parable
+## Why Parables
 
 - You write task logic directly in Julia.
 - Access annotations make dependencies explicit and debuggable.
@@ -21,7 +21,7 @@ You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over explicit
 - Regions: `Whole`, `Block`, `Key`, `Tile`, `IndexSet`
 - DAG building: `@dag`, `@spawn`, `@task`, `@access`, `@accesses`
 - Execution: `execute!`, `execute_threads!`, `execute_serial!`, `execute_privatize!`
-- Helpers: `eachblock`, `parable_foreach`, `parable_map`, `parable_mapreduce`
+- Helpers: `eachblock`, `parables_foreach`, `parables_map`, `parables_mapreduce`
 
 ## Navigation
 

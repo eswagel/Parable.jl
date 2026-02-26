@@ -5,7 +5,7 @@ This page is organized by concept rather than one flat symbol list.
 ## Effects
 
 ```@autodocs
-Modules = [Parable]
+Modules = [Parables]
 Pages   = ["effects.jl"]
 Order   = [:type, :function]
 ```
@@ -13,7 +13,7 @@ Order   = [:type, :function]
 ## Regions
 
 ```@autodocs
-Modules = [Parable]
+Modules = [Parables]
 Pages   = ["regions.jl"]
 Order   = [:type, :function]
 ```
@@ -21,7 +21,7 @@ Order   = [:type, :function]
 ## Access And Tasks
 
 ```@autodocs
-Modules = [Parable]
+Modules = [Parables]
 Pages   = ["access.jl", "task.jl"]
 Order   = [:type, :function]
 ```
@@ -29,7 +29,7 @@ Order   = [:type, :function]
 ## Conflicts And DAG Construction
 
 ```@autodocs
-Modules = [Parable]
+Modules = [Parables]
 Pages   = ["conflicts.jl", "dag.jl"]
 Order   = [:type, :function]
 ```
@@ -37,7 +37,7 @@ Order   = [:type, :function]
 ## Execution
 
 ```@autodocs
-Modules = [Parable]
+Modules = [Parables]
 Pages   = ["scheduler_threads.jl", "reduce_priv.jl"]
 Order   = [:function]
 ```
@@ -45,7 +45,7 @@ Order   = [:function]
 ## Macros
 
 ```@autodocs
-Modules = [Parable]
+Modules = [Parables]
 Pages   = ["macros.jl"]
 Order   = [:macro]
 ```
@@ -53,7 +53,7 @@ Order   = [:macro]
 ## Convenience Builders
 
 ```@autodocs
-Modules = [Parable]
+Modules = [Parables]
 Pages   = ["convenience.jl"]
 Order   = [:function]
 ```
@@ -61,7 +61,7 @@ Order   = [:function]
 ## Diagnostics
 
 ```@autodocs
-Modules = [Parable]
+Modules = [Parables]
 Pages   = ["diagnostics.jl"]
 Order   = [:function]
 ```

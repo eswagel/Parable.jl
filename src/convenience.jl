@@ -56,7 +56,7 @@ function task_from_accesses(name::String, accesses::AbstractVector, thunk::Funct
 end
 
 """
-    parable_foreach(blocks, task_builder::Function; finalize::Bool=true) -> DAG
+    parables_foreach(blocks, task_builder::Function; finalize::Bool=true) -> DAG
 
 Build a DAG by applying `task_builder(r, i)` to each block.
 
@@ -65,7 +65,7 @@ Build a DAG by applying `task_builder(r, i)` to each block.
 - `task_builder`: Function returning a `TaskSpec` or collection of `TaskSpec`.
 - `finalize`: If `true`, calls `finalize!` before returning.
 """
-function parable_foreach(blocks, task_builder::Function; finalize::Bool=true)
+function parables_foreach(blocks, task_builder::Function; finalize::Bool=true)
     dag = DAG()
     for (i, r) in enumerate(blocks)
         t = task_builder(r, i)
@@ -85,25 +85,25 @@ function parable_foreach(blocks, task_builder::Function; finalize::Bool=true)
 end
 
 """
-    parable_foreach(task_builder::Function, blocks; finalize::Bool=true) -> DAG
+    parables_foreach(task_builder::Function, blocks; finalize::Bool=true) -> DAG
 
 Do-block friendly overload:
 
 ```julia
-parable_foreach(blocks) do r, i
+parables_foreach(blocks) do r, i
     ...
 end
 ```
 """
-parable_foreach(task_builder::Function, blocks; finalize::Bool=true) =
-    parable_foreach(blocks, task_builder; finalize=finalize)
+parables_foreach(task_builder::Function, blocks; finalize::Bool=true) =
+    parables_foreach(blocks, task_builder; finalize=finalize)
 
 """
-    parable_foreach!(dag::DAG, blocks, task_builder::Function) -> DAG
+    parables_foreach!(dag::DAG, blocks, task_builder::Function) -> DAG
 
 Append tasks produced by `task_builder(r, i)` directly to an existing DAG.
 """
-function parable_foreach!(dag::DAG, blocks, task_builder::Function)
+function parables_foreach!(dag::DAG, blocks, task_builder::Function)
     for (i, r) in enumerate(blocks)
         t = task_builder(r, i)
         if t isa TaskSpec
@@ -121,15 +121,15 @@ function parable_foreach!(dag::DAG, blocks, task_builder::Function)
 end
 
 """
-    parable_foreach!(dag::DAG, task_builder::Function, blocks) -> DAG
+    parables_foreach!(dag::DAG, task_builder::Function, blocks) -> DAG
 
-Do-block friendly overload for `parable_foreach!`.
+Do-block friendly overload for `parables_foreach!`.
 """
-parable_foreach!(dag::DAG, task_builder::Function, blocks) =
-    parable_foreach!(dag, blocks, task_builder)
+parables_foreach!(dag::DAG, task_builder::Function, blocks) =
+    parables_foreach!(dag, blocks, task_builder)
 
 """
-    parable_map!(
+    parables_map!(
         dest::AbstractVector,
         data::AbstractVector,
         blocks,
@@ -147,15 +147,15 @@ Create block tasks that apply `f` elementwise to `data` and write into `dest`.
 - `finalize`: Whether to finalize the returned DAG.
 - `name_prefix`: Task name prefix.
 """
-function parable_map!(dest::AbstractVector, data::AbstractVector, blocks, f::Function;
+function parables_map!(dest::AbstractVector, data::AbstractVector, blocks, f::Function;
     finalize::Bool=true,
     name_prefix::String="map")
     length(dest) == length(data) || error("dest and data must be the same length")
 
-    dag = parable_foreach(blocks; finalize=false) do r, i
-        Parable.@task "$(name_prefix)-$i" begin
-            Parable.@access data Read() Block(r)
-            Parable.@access dest Write() Block(r)
+    dag = parables_foreach(blocks; finalize=false) do r, i
+        Parables.@task "$(name_prefix)-$i" begin
+            Parables.@access data Read() Block(r)
+            Parables.@access dest Write() Block(r)
             @inbounds for idx in r
                 dest[idx] = f(data[idx])
             end
@@ -166,7 +166,7 @@ function parable_map!(dest::AbstractVector, data::AbstractVector, blocks, f::Fun
 end
 
 """
-    parable_map(
+    parables_map(
         data::AbstractVector,
         blocks,
         f::Function;
@@ -176,16 +176,16 @@ end
 
 Allocate an output vector, build a block map DAG, and return `(dag, dest)`.
 """
-function parable_map(data::AbstractVector, blocks, f::Function;
+function parables_map(data::AbstractVector, blocks, f::Function;
     finalize::Bool=true,
     name_prefix::String="map")
     dest = similar(data)
-    dag = parable_map!(dest, data, blocks, f; finalize=finalize, name_prefix=name_prefix)
+    dag = parables_map!(dest, data, blocks, f; finalize=finalize, name_prefix=name_prefix)
     return dag, dest
 end
 
 """
-    parable_mapreduce(
+    parables_mapreduce(
         data::AbstractVector,
         blocks,
         op::Function,
@@ -207,16 +207,16 @@ Build a block map-reduce DAG over `data`.
 # Returns
 - `(dag, acc)` where `acc` is a length-1 vector storing the reduced value.
 """
-function parable_mapreduce(data::AbstractVector, blocks, op::Function, mapf::Function=identity;
+function parables_mapreduce(data::AbstractVector, blocks, op::Function, mapf::Function=identity;
     finalize::Bool=true,
     name_prefix::String="mapreduce")
     acc = zeros(eltype(data), 1)
-    dag = parable_foreach(blocks; finalize=false) do r, i
-        Parable.@task "$(name_prefix)-$i" begin
-            Parable.@access data Read() Block(r)
-            Parable.@access acc Reduce(op) Whole()
+    dag = parables_foreach(blocks; finalize=false) do r, i
+        Parables.@task "$(name_prefix)-$i" begin
+            Parables.@access data Read() Block(r)
+            Parables.@access acc Reduce(op) Whole()
             @inbounds for idx in r
-                Parable.reduce_add!(acc, op, Whole(), 1, mapf(data[idx]))
+                Parables.reduce_add!(acc, op, Whole(), 1, mapf(data[idx]))
             end
         end
     end

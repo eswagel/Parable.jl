@@ -1,4 +1,4 @@
-using Parable
+using Parables
 
 # Example: block a vector into ranges, spawn one task per block, and write each
 # block's sum into its own slot. This makes the parallel reduction safe and lets
@@ -29,11 +29,11 @@ end
 blocks = eachblock(n, block_size)
 partials = zeros(Int, length(blocks))
 
-dag = parable_foreach(blocks) do r, bi
+dag = parables_foreach(blocks) do r, bi
     # Each task reads its block and writes one slot in the partials array.
-    Parable.@task "block-$bi" begin
-        Parable.@access data Read() Block(r)
-        Parable.@access partials Write() Key(bi)
+    Parables.@task "block-$bi" begin
+        Parables.@access data Read() Block(r)
+        Parables.@access partials Write() Key(bi)
         partials[bi] = block_sum(data, r)
     end
 end

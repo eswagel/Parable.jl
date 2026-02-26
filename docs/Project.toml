@@ -1,5 +1,5 @@
 [deps]
-Parable = "b23e9bf5-c030-48ea-90eb-85d026696f85"
+Parables = "b23e9bf5-c030-48ea-90eb-85d026696f85"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
 [compat]
@@ -7,4 +7,4 @@ Documenter = "1"
 
 # NOTE: Local path for unregistered package. Remove or replace before final release.
 [sources]
-Parable = { path = ".." }
+Parables = { path = ".." }

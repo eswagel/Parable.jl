@@ -1,13 +1,13 @@
 @testset "macros" begin
     obj = Ref(0)
 
-    dag = Parable.@dag begin
-        Parable.@spawn Parable.@task "write" begin
-            Parable.@access obj Write() Whole()
+    dag = Parables.@dag begin
+        Parables.@spawn Parables.@task "write" begin
+            Parables.@access obj Write() Whole()
             obj[] = 1
         end
-        Parable.@spawn Parable.@task "readwrite" begin
-            Parable.@access obj ReadWrite() Whole()
+        Parables.@spawn Parables.@task "readwrite" begin
+            Parables.@access obj ReadWrite() Whole()
             obj[] += 1
         end
     end
@@ -22,8 +22,8 @@ end
 @testset "accesses block" begin
     obj = Ref(0)
 
-    task = Parable.@task "write" begin
-        Parable.@accesses begin
+    task = Parables.@task "write" begin
+        Parables.@accesses begin
             (obj, Write(), Whole())
         end
         obj[] = 1

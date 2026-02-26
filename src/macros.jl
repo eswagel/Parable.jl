@@ -18,9 +18,9 @@ Create a `TaskSpec` from a task body.
 
 # Example
 ```julia
-Parable.@task "scale" begin
-    Parable.@access x Read() Whole()
-    Parable.@access y Write() Whole()
+Parables.@task "scale" begin
+    Parables.@access x Read() Whole()
+    Parables.@access y Write() Whole()
     y .= 2 .* x
 end
 ```
@@ -164,7 +164,7 @@ Append task expression `expr` to the current `@dag` builder.
 - Valid only within `@dag`.
 """
 macro spawn(expr)
-    return esc(:(push!(__parable_builder, $(expr))))
+    return esc(:(push!(__parables_builder, $(expr))))
 end
 
 """
@@ -177,8 +177,8 @@ finalized `DAG`.
 
 # Example
 ```julia
-dag = Parable.@dag begin
-    Parable.@spawn Parable.@task "t1" begin
+dag = Parables.@dag begin
+    Parables.@spawn Parables.@task "t1" begin
         ...
     end
 end
@@ -188,7 +188,7 @@ macro dag(block)
     builder = gensym(:builder)
     return quote
         local $(builder) = DAG()
-        let $(esc(:__parable_builder)) = $(builder)
+        let $(esc(:__parables_builder)) = $(builder)
             $(esc(block))
         end
         finalize!($(builder))

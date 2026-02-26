@@ -1,28 +1,28 @@
-using Parable
+using Parables
 
 obj = Ref(0)
 
 # A simple three-task chain over the same object.
-dag = Parable.@dag begin
+dag = Parables.@dag begin
     # First task writes a fresh value.
-    Parable.@spawn Parable.@task "init" begin
-        Parable.@accesses begin
+    Parables.@spawn Parables.@task "init" begin
+        Parables.@accesses begin
             (obj, Write(), Whole())
         end
         obj[] = 1
     end
 
     # Second task mutates the same object.
-    Parable.@spawn Parable.@task "bump" begin
-        Parable.@accesses begin
+    Parables.@spawn Parables.@task "bump" begin
+        Parables.@accesses begin
             (obj, ReadWrite(), Whole())
         end
         obj[] += 1
     end
 
     # Final task reads the result.
-    Parable.@spawn Parable.@task "read" begin
-        Parable.@accesses begin
+    Parables.@spawn Parables.@task "read" begin
+        Parables.@accesses begin
             (obj, Read(), Whole())
         end
         println("value = ", obj[])

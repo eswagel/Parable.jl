@@ -9,10 +9,10 @@ This is **not** a full compiler auto-parallelizer. It’s a runtime + lightweigh
 ## Repository layout
 
 ```
-Parable.jl/
+Parables.jl/
   Project.toml
   src/
-    Parable.jl
+    Parables.jl
     effects.jl
     regions.jl
     access.jl
@@ -40,11 +40,11 @@ Parable.jl/
 
 ---
 
-## `src/Parable.jl`
+## `src/Parables.jl`
 
 Package entrypoint.
 
-- `module Parable`
+- `module Parables`
 - `include(...)` all source files
 - Export a small, stable public API:
   - Effects: `Read`, `Write`, `ReadWrite`, `Reduce`
@@ -285,9 +285,9 @@ Make the system trustable.
 - Histogram reductions combine correctly.
 
 ### `test/test_convenience.jl`
-- `eachblock`, `parable_foreach` basics
+- `eachblock`, `parables_foreach` basics
 - multiple-task returns per block
-- `parable_map` and `parable_mapreduce`
+- `parables_map` and `parables_mapreduce`
 
 ---
 
@@ -334,13 +334,13 @@ Make the system trustable.
 
 Goal: make common data-parallel use cases concise and reduce boilerplate.
 
-- `parable_foreach(blocks; ...)`:
+- `parables_foreach(blocks; ...)`:
   - Apply a task builder over block ranges.
-- `parable_map(data, blocks, f)`:
+- `parables_map(data, blocks, f)`:
   - Elementwise transform into a new output array (returns `dag, dest`).
-- `parable_map!(dest, data, blocks, f)`:
+- `parables_map!(dest, data, blocks, f)`:
   - Elementwise transform into a provided output array.
-- `parable_mapreduce(data, blocks, op, mapf)`:
+- `parables_mapreduce(data, blocks, op, mapf)`:
   - Parallel reduction using `Reduce(op)` and `reduce_add!` (returns `dag, acc`).
 
 Convenience building blocks:
@@ -372,7 +372,7 @@ That’s enough to validate the concept and decide whether to invest in:
 This repository has moved from planning to a working MVP implementation.
 
 Implemented and validated:
-- Core runtime files listed above are present and wired through `src/Parable.jl`.
+- Core runtime files listed above are present and wired through `src/Parables.jl`.
 - Test suite passes with `Pkg.test()` (effects, regions, access/task, conflicts, dag, scheduler, macros, diagnostics, reduction privatization, convenience helpers).
 - `examples/03_molecular_dynamics.jl` runs end-to-end and writes frames/animation output.
 - `examples/04_histogram.jl` validates correctness for both `reduce_strategy=:serialize` and `:privatize`.

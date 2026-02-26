@@ -24,7 +24,7 @@ function build_animation_html(frame_paths, out_path; particle_radius=0.2)
     open(out_path, "w") do io
         println(io, "<!doctype html>")
         println(io, "<html><head><meta charset=\"utf-8\">")
-        println(io, "<title>Parable MD Animation</title>")
+        println(io, "<title>Parables MD Animation</title>")
         println(io, "<style>")
         println(io, "body { margin: 0; font-family: sans-serif; background: #111; color: #eee; }")
         println(io, "#wrap { display: flex; align-items: center; justify-content: center; height: 100vh; }")

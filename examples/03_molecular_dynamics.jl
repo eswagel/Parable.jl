@@ -1,4 +1,4 @@
-using Parable
+using Parables
 
 include(joinpath(@__DIR__, "md_utils.jl"))
 
@@ -6,7 +6,7 @@ envint(key, default) = parse(Int, get(ENV, key, string(default)))
 envbool(key, default) = lowercase(get(ENV, key, default ? "true" : "false")) in ("1", "true", "yes", "on")
 
 # Simplified MD demo: per-block force/integration tasks with spatial binning.
-# Tasks declare which arrays/regions they read and write; Parable uses that
+# Tasks declare which arrays/regions they read and write; Parables uses that
 # information to order dependent work and expose safe parallelism.
 
 # === Parameters ===
@@ -33,10 +33,10 @@ n_cells_x = n_cells_y = ceil(Int, box / cutoff)
 k_spring = -10.0
 speed_mean = 1.0
 speed_std = 0.2
-steps = envint("PARABLE_MD_STEPS", 5000)
-save_frames = envbool("PARABLE_MD_SAVE_FRAMES", true)
-frame_stride = envint("PARABLE_MD_FRAME_STRIDE", 10)
-progress_stride = envint("PARABLE_MD_PROGRESS_STRIDE", 50)
+steps = envint("PARABLES_MD_STEPS", 5000)
+save_frames = envbool("PARABLES_MD_SAVE_FRAMES", true)
+frame_stride = envint("PARABLES_MD_FRAME_STRIDE", 10)
+progress_stride = envint("PARABLES_MD_PROGRESS_STRIDE", 50)
 output_dir = joinpath(@__DIR__, "output")
 
 println("initializing particles...")
@@ -140,61 +140,61 @@ println("building DAG...")
 #   2) integrate-pos-$bi: advance positions with a half-step velocity update.
 #   3) forces2-$bi: recompute forces after positions update.
 #   4) integrate-vel-$bi: finish the velocity update.
-# Access annotations describe which regions are read or written so Parable can
+# Access annotations describe which regions are read or written so Parables can
 # order dependent tasks and run independent blocks in parallel.
-dag = Parable.@dag begin
-    Parable.@spawn Parable.@task "bin-1" begin
-        Parable.@access posx Read() Whole()
-        Parable.@access posy Read() Whole()
-        Parable.@access cells Write() Whole()
-        Parable.@access cell_of Write() Whole()
+dag = Parables.@dag begin
+    Parables.@spawn Parables.@task "bin-1" begin
+        Parables.@access posx Read() Whole()
+        Parables.@access posy Read() Whole()
+        Parables.@access cells Write() Whole()
+        Parables.@access cell_of Write() Whole()
         # Parallel binning builds per-cell particle lists.
         bin_particles_auto!(cells, cell_of, posx, posy, box, n_cells_x, n_cells_y, bin_ctx)
     end
     for (bi, r) in enumerate(blocks)
-        Parable.@spawn Parable.@task "forces-$bi" begin
-            Parable.@access posx Read() Whole()
-            Parable.@access posy Read() Whole()
-            Parable.@access cells Read() Whole()
-            Parable.@access cell_of Read() Whole()
-            Parable.@access neighbors Read() Whole()
-            Parable.@access forcex Write() Block(r)
-            Parable.@access forcey Write() Block(r)
+        Parables.@spawn Parables.@task "forces-$bi" begin
+            Parables.@access posx Read() Whole()
+            Parables.@access posy Read() Whole()
+            Parables.@access cells Read() Whole()
+            Parables.@access cell_of Read() Whole()
+            Parables.@access neighbors Read() Whole()
+            Parables.@access forcex Write() Block(r)
+            Parables.@access forcey Write() Block(r)
             accumulate_forces!(r, cell_of, neighbors, cells, posx, posy, forcex, forcey, box, cutoff2, soft, particle_radius, k_spring)
         end
-        Parable.@spawn Parable.@task "integrate-pos-$bi" begin
-            Parable.@access posx ReadWrite() Block(r)
-            Parable.@access posy ReadWrite() Block(r)
-            Parable.@access velx ReadWrite() Block(r)
-            Parable.@access vely ReadWrite() Block(r)
-            Parable.@access forcex Read() Block(r)
-            Parable.@access forcey Read() Block(r)
+        Parables.@spawn Parables.@task "integrate-pos-$bi" begin
+            Parables.@access posx ReadWrite() Block(r)
+            Parables.@access posy ReadWrite() Block(r)
+            Parables.@access velx ReadWrite() Block(r)
+            Parables.@access vely ReadWrite() Block(r)
+            Parables.@access forcex Read() Block(r)
+            Parables.@access forcey Read() Block(r)
             integrate_position!(r, posx, posy, velx, vely, forcex, forcey, dt, box)
         end
     end
-    Parable.@spawn Parable.@task "bin-2" begin
-        Parable.@access posx Read() Whole()
-        Parable.@access posy Read() Whole()
-        Parable.@access cells Write() Whole()
-        Parable.@access cell_of Write() Whole()
+    Parables.@spawn Parables.@task "bin-2" begin
+        Parables.@access posx Read() Whole()
+        Parables.@access posy Read() Whole()
+        Parables.@access cells Write() Whole()
+        Parables.@access cell_of Write() Whole()
         bin_particles_auto!(cells, cell_of, posx, posy, box, n_cells_x, n_cells_y, bin_ctx)
     end
     for (bi, r) in enumerate(blocks)
-        Parable.@spawn Parable.@task "forces2-$bi" begin
-            Parable.@access posx Read() Whole()
-            Parable.@access posy Read() Whole()
-            Parable.@access cells Read() Whole()
-            Parable.@access cell_of Read() Whole()
-            Parable.@access neighbors Read() Whole()
-            Parable.@access forcex Write() Block(r)
-            Parable.@access forcey Write() Block(r)
+        Parables.@spawn Parables.@task "forces2-$bi" begin
+            Parables.@access posx Read() Whole()
+            Parables.@access posy Read() Whole()
+            Parables.@access cells Read() Whole()
+            Parables.@access cell_of Read() Whole()
+            Parables.@access neighbors Read() Whole()
+            Parables.@access forcex Write() Block(r)
+            Parables.@access forcey Write() Block(r)
             accumulate_forces!(r, cell_of, neighbors, cells, posx, posy, forcex, forcey, box, cutoff2, soft, particle_radius, k_spring)
         end
-        Parable.@spawn Parable.@task "integrate-vel-$bi" begin
-            Parable.@access velx ReadWrite() Block(r)
-            Parable.@access vely ReadWrite() Block(r)
-            Parable.@access forcex Read() Block(r)
-            Parable.@access forcey Read() Block(r)
+        Parables.@spawn Parables.@task "integrate-vel-$bi" begin
+            Parables.@access velx ReadWrite() Block(r)
+            Parables.@access vely ReadWrite() Block(r)
+            Parables.@access forcex Read() Block(r)
+            Parables.@access forcey Read() Block(r)
             integrate_velocity!(r, velx, vely, forcex, forcey, dt)
         end
     end

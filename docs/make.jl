@@ -1,5 +1,5 @@
 using Documenter
-using Parable
+using Parables
 
 function tutorial_title(stem::String)
     pretty = replace(stem, r"^\d+_" => "")
@@ -37,7 +37,7 @@ function write_md_animation_html(frame_paths::Vector{String}, out_path::String; 
     open(out_path, "w") do io
         println(io, "<!doctype html>")
         println(io, "<html><head><meta charset=\"utf-8\">")
-        println(io, "<title>Parable MD Animation</title>")
+        println(io, "<title>Parables MD Animation</title>")
         println(io, "<style>")
         println(io, "body { margin: 0; font-family: sans-serif; background: #111; color: #eee; }")
         println(io, "#wrap { display: flex; align-items: center; justify-content: center; height: 100vh; }")
@@ -202,8 +202,8 @@ pretty = get(ENV, "CI", "false") == "true"
 tutorial_pages = build_tutorial_pages()
 
 makedocs(
-    sitename = "Parable.jl",
-    modules = [Parable],
+    sitename = "Parables.jl",
+    modules = [Parables],
     format = Documenter.HTML(
         prettyurls = pretty,
         edit_link = "main",
@@ -224,6 +224,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/eswagel/Parable.jl.git",
+    repo = "github.com/eswagel/Parables.jl.git",
     devbranch = "main",
 )
