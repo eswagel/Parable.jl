@@ -164,7 +164,7 @@ Append task expression `expr` to the current `@dag` builder.
 - Valid only within `@dag`.
 """
 macro spawn(expr)
-    return esc(:(push!(__detangle_builder, $(expr))))
+    return esc(:(push!(__parable_builder, $(expr))))
 end
 
 """
@@ -188,7 +188,7 @@ macro dag(block)
     builder = gensym(:builder)
     return quote
         local $(builder) = DAG()
-        let $(esc(:__detangle_builder)) = $(builder)
+        let $(esc(:__parable_builder)) = $(builder)
             $(esc(block))
         end
         finalize!($(builder))

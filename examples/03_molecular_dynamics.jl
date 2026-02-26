@@ -33,10 +33,10 @@ n_cells_x = n_cells_y = ceil(Int, box / cutoff)
 k_spring = -10.0
 speed_mean = 1.0
 speed_std = 0.2
-steps = envint("DETANGLE_MD_STEPS", 5000)
-save_frames = envbool("DETANGLE_MD_SAVE_FRAMES", true)
-frame_stride = envint("DETANGLE_MD_FRAME_STRIDE", 10)
-progress_stride = envint("DETANGLE_MD_PROGRESS_STRIDE", 50)
+steps = envint("PARABLE_MD_STEPS", 5000)
+save_frames = envbool("PARABLE_MD_SAVE_FRAMES", true)
+frame_stride = envint("PARABLE_MD_FRAME_STRIDE", 10)
+progress_stride = envint("PARABLE_MD_PROGRESS_STRIDE", 50)
 output_dir = joinpath(@__DIR__, "output")
 
 println("initializing particles...")

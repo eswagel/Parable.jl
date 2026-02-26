@@ -28,9 +28,9 @@ jobs:
       - name: Generate tutorial artifacts
         env:
           JULIA_NUM_THREADS: "8"
-          DETANGLE_MD_STEPS: "800"
-          DETANGLE_MD_FRAME_STRIDE: "20"
-          DETANGLE_MD_PROGRESS_STRIDE: "20"
+          PARABLE_MD_STEPS: "800"
+          PARABLE_MD_FRAME_STRIDE: "20"
+          PARABLE_MD_PROGRESS_STRIDE: "20"
         run: |
           julia --project=. examples/03_molecular_dynamics.jl
           julia --project=. examples/04_histogram.jl

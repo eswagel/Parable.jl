@@ -285,9 +285,9 @@ Make the system trustable.
 - Histogram reductions combine correctly.
 
 ### `test/test_convenience.jl`
-- `eachblock`, `detangle_foreach` basics
+- `eachblock`, `parable_foreach` basics
 - multiple-task returns per block
-- `detangle_map` and `detangle_mapreduce`
+- `parable_map` and `parable_mapreduce`
 
 ---
 
@@ -334,13 +334,13 @@ Make the system trustable.
 
 Goal: make common data-parallel use cases concise and reduce boilerplate.
 
-- `detangle_foreach(blocks; ...)`:
+- `parable_foreach(blocks; ...)`:
   - Apply a task builder over block ranges.
-- `detangle_map(data, blocks, f)`:
+- `parable_map(data, blocks, f)`:
   - Elementwise transform into a new output array (returns `dag, dest`).
-- `detangle_map!(dest, data, blocks, f)`:
+- `parable_map!(dest, data, blocks, f)`:
   - Elementwise transform into a provided output array.
-- `detangle_mapreduce(data, blocks, op, mapf)`:
+- `parable_mapreduce(data, blocks, op, mapf)`:
   - Parallel reduction using `Reduce(op)` and `reduce_add!` (returns `dag, acc`).
 
 Convenience building blocks:

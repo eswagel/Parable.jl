@@ -29,7 +29,7 @@ end
 blocks = eachblock(n, block_size)
 partials = zeros(Int, length(blocks))
 
-dag = detangle_foreach(blocks) do r, bi
+dag = parable_foreach(blocks) do r, bi
     # Each task reads its block and writes one slot in the partials array.
     Parable.@task "block-$bi" begin
         Parable.@access data Read() Block(r)

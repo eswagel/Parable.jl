@@ -7,7 +7,7 @@
     t = task_from_accesses("t", accesses, () -> (obj[] = 1))
     @test length(t.accesses) == 1
 
-    dag = detangle_foreach(blocks) do r, i
+    dag = parable_foreach(blocks) do r, i
         Parable.@task "t-$i" begin
             Parable.@access obj Write() Whole()
             obj[] += 1
@@ -18,7 +18,7 @@
 
     # Allow multiple tasks per block.
     obj[] = 0
-    dag2 = detangle_foreach(blocks) do r, i
+    dag2 = parable_foreach(blocks) do r, i
         tasks = TaskSpec[]
         push!(tasks, Parable.@task "a-$i" begin
             Parable.@access obj Write() Whole()
@@ -33,15 +33,15 @@
     execute_serial!(dag2)
     @test obj[] == 2 * length(blocks)
 
-    # detangle_map
+    # parable_map
     data = collect(1:10)
     blocks2 = eachblock(length(data), 4)
-    dag_map, out = detangle_map(data, blocks2, x -> x * 2)
+    dag_map, out = parable_map(data, blocks2, x -> x * 2)
     execute_serial!(dag_map)
     @test out == data .* 2
 
-    # detangle_mapreduce
-    dag_red, acc = detangle_mapreduce(data, blocks2, +, x -> x * x)
+    # parable_mapreduce
+    dag_red, acc = parable_mapreduce(data, blocks2, +, x -> x * x)
     execute!(dag_red; backend=:threads, reduce_strategy=:privatize)
     @test acc[1] == sum(x * x for x in data)
 end

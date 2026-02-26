@@ -29,7 +29,7 @@ end
 
 hist = zeros(Int, nbins)
 
-dag = detangle_foreach(blocks) do r, bi
+dag = parable_foreach(blocks) do r, bi
     Parable.@task "hist-$bi" begin
         Parable.@access hist Reduce(+) Whole()
         @inbounds for i in r

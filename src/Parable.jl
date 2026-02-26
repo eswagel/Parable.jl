@@ -21,8 +21,8 @@ export conflicts, task_conflicts
 export DAG, finalize!
 export execute!, execute_threads!, execute_serial!, execute_privatize!
 export reduce_add!
-export eachblock, task_from_accesses, detangle_foreach, detangle_foreach!
-export detangle_map!, detangle_map, detangle_mapreduce
+export eachblock, task_from_accesses, parable_foreach, parable_foreach!
+export parable_map!, parable_map, parable_mapreduce
 export @task, @access, @accesses, @spawn, @dag
 export explain_conflict, print_dag
 

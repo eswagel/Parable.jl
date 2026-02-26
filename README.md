@@ -72,7 +72,7 @@ execute_threads!(dag)  # then run parallel
 - Effects: `Read`, `Write`, `ReadWrite`, `Reduce`
 - Regions: `Whole`, `Block`, `Key`, `Tile`, `IndexSet`
 - Execution: `execute!`, `execute_serial!`, `execute_threads!`, `execute_privatize!`
-- Helpers: `eachblock`, `detangle_foreach`, `detangle_map`, `detangle_mapreduce`
+- Helpers: `eachblock`, `parable_foreach`, `parable_map`, `parable_mapreduce`
 
 ## Examples
 

@@ -33,7 +33,7 @@ File: `examples/02_block_sum.jl`
 What it covers:
 
 - Splitting work via `eachblock`
-- Creating one task per block with `detangle_foreach`
+- Creating one task per block with `parable_foreach`
 - Comparing threaded DAG execution to a serial baseline
 
 Run:

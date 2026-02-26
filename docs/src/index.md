@@ -21,7 +21,7 @@ You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over explicit
 - Regions: `Whole`, `Block`, `Key`, `Tile`, `IndexSet`
 - DAG building: `@dag`, `@spawn`, `@task`, `@access`, `@accesses`
 - Execution: `execute!`, `execute_threads!`, `execute_serial!`, `execute_privatize!`
-- Helpers: `eachblock`, `detangle_foreach`, `detangle_map`, `detangle_mapreduce`
+- Helpers: `eachblock`, `parable_foreach`, `parable_map`, `parable_mapreduce`
 
 ## Navigation
 
