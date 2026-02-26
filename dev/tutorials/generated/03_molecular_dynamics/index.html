@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Molecular Dynamics · Parable.jl</title><meta name="title" content="Molecular Dynamics · Parable.jl"/><meta property="og:title" content="Molecular Dynamics · Parable.jl"/><meta property="twitter:title" content="Molecular Dynamics · Parable.jl"/><meta name="description" content="Documentation for Parable.jl."/><meta property="og:description" content="Documentation for Parable.jl."/><meta property="twitter:description" content="Documentation for Parable.jl."/><script data-outdated-warner src="../../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../search_index.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Parable.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../getting_started/">Getting Started</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../manual/overview/">Overview</a></li><li><a class="tocitem" href="../../../manual/concepts/">Concepts and Semantics</a></li><li><a class="tocitem" href="../../../manual/api_reference/">API Reference</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../overview/">Overview</a></li><li><a class="tocitem" href="../01_basic_dag/">Basic Dag</a></li><li><a class="tocitem" href="../02_block_sum/">Block Sum</a></li><li class="is-active"><a class="tocitem" href>Molecular Dynamics</a><ul class="internal"><li><a class="tocitem" href="#Visualization"><span>Visualization</span></a></li></ul></li><li><a class="tocitem" href="../04_histogram/">Histogram</a></li></ul></li><li><a class="tocitem" href="../../../comparison/">Comparison</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Molecular Dynamics</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Molecular Dynamics</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/eswagel/Parable.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/eswagel/Parable.jl/blob/main/docs/src/tutorials/generated/03_molecular_dynamics.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Molecular-Dynamics"><a class="docs-heading-anchor" href="#Molecular-Dynamics">Molecular Dynamics</a><a id="Molecular-Dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#Molecular-Dynamics" title="Permalink"></a></h1><p>This page is auto-generated from <code>examples/03_molecular_dynamics.jl</code>.</p><p>The tutorial code is rendered only (not executed during docs build).</p><pre><code class="language-julia hljs">using Parable
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Molecular Dynamics · Parables.jl</title><meta name="title" content="Molecular Dynamics · Parables.jl"/><meta property="og:title" content="Molecular Dynamics · Parables.jl"/><meta property="twitter:title" content="Molecular Dynamics · Parables.jl"/><meta name="description" content="Documentation for Parables.jl."/><meta property="og:description" content="Documentation for Parables.jl."/><meta property="twitter:description" content="Documentation for Parables.jl."/><script data-outdated-warner src="../../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../search_index.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Parables.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../getting_started/">Getting Started</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../manual/overview/">Overview</a></li><li><a class="tocitem" href="../../../manual/concepts/">Concepts and Semantics</a></li><li><a class="tocitem" href="../../../manual/api_reference/">API Reference</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../overview/">Overview</a></li><li><a class="tocitem" href="../01_basic_dag/">Basic Dag</a></li><li><a class="tocitem" href="../02_block_sum/">Block Sum</a></li><li class="is-active"><a class="tocitem" href>Molecular Dynamics</a><ul class="internal"><li><a class="tocitem" href="#Visualization"><span>Visualization</span></a></li></ul></li><li><a class="tocitem" href="../04_histogram/">Histogram</a></li></ul></li><li><a class="tocitem" href="../../../comparison/">Comparison</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Molecular Dynamics</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Molecular Dynamics</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/eswagel/Parables.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/eswagel/Parables.jl/blob/main/docs/src/tutorials/generated/03_molecular_dynamics.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Molecular-Dynamics"><a class="docs-heading-anchor" href="#Molecular-Dynamics">Molecular Dynamics</a><a id="Molecular-Dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#Molecular-Dynamics" title="Permalink"></a></h1><p>This page is auto-generated from <code>examples/03_molecular_dynamics.jl</code>.</p><p>The tutorial code is rendered only (not executed during docs build).</p><pre><code class="language-julia hljs">using Parables
 
 include(joinpath(@__DIR__, &quot;md_utils.jl&quot;))
 
@@ -7,7 +7,7 @@ envint(key, default) = parse(Int, get(ENV, key, string(default)))
 envbool(key, default) = lowercase(get(ENV, key, default ? &quot;true&quot; : &quot;false&quot;)) in (&quot;1&quot;, &quot;true&quot;, &quot;yes&quot;, &quot;on&quot;)
 
 # Simplified MD demo: per-block force/integration tasks with spatial binning.
-# Tasks declare which arrays/regions they read and write; Parable uses that
+# Tasks declare which arrays/regions they read and write; Parables uses that
 # information to order dependent work and expose safe parallelism.
 
 # === Parameters ===
@@ -34,10 +34,10 @@ n_cells_x = n_cells_y = ceil(Int, box / cutoff)
 k_spring = -10.0
 speed_mean = 1.0
 speed_std = 0.2
-steps = envint(&quot;PARABLE_MD_STEPS&quot;, 5000)
-save_frames = envbool(&quot;PARABLE_MD_SAVE_FRAMES&quot;, true)
-frame_stride = envint(&quot;PARABLE_MD_FRAME_STRIDE&quot;, 10)
-progress_stride = envint(&quot;PARABLE_MD_PROGRESS_STRIDE&quot;, 50)
+steps = envint(&quot;PARABLES_MD_STEPS&quot;, 5000)
+save_frames = envbool(&quot;PARABLES_MD_SAVE_FRAMES&quot;, true)
+frame_stride = envint(&quot;PARABLES_MD_FRAME_STRIDE&quot;, 10)
+progress_stride = envint(&quot;PARABLES_MD_PROGRESS_STRIDE&quot;, 50)
 output_dir = joinpath(@__DIR__, &quot;output&quot;)
 
 println(&quot;initializing particles...&quot;)
@@ -141,61 +141,61 @@ println(&quot;building DAG...&quot;)
 #   2) integrate-pos-$bi: advance positions with a half-step velocity update.
 #   3) forces2-$bi: recompute forces after positions update.
 #   4) integrate-vel-$bi: finish the velocity update.
-# Access annotations describe which regions are read or written so Parable can
+# Access annotations describe which regions are read or written so Parables can
 # order dependent tasks and run independent blocks in parallel.
-dag = Parable.@dag begin
-    Parable.@spawn Parable.@task &quot;bin-1&quot; begin
-        Parable.@access posx Read() Whole()
-        Parable.@access posy Read() Whole()
-        Parable.@access cells Write() Whole()
-        Parable.@access cell_of Write() Whole()
+dag = Parables.@dag begin
+    Parables.@spawn Parables.@task &quot;bin-1&quot; begin
+        Parables.@access posx Read() Whole()
+        Parables.@access posy Read() Whole()
+        Parables.@access cells Write() Whole()
+        Parables.@access cell_of Write() Whole()
         # Parallel binning builds per-cell particle lists.
         bin_particles_auto!(cells, cell_of, posx, posy, box, n_cells_x, n_cells_y, bin_ctx)
     end
     for (bi, r) in enumerate(blocks)
-        Parable.@spawn Parable.@task &quot;forces-$bi&quot; begin
-            Parable.@access posx Read() Whole()
-            Parable.@access posy Read() Whole()
-            Parable.@access cells Read() Whole()
-            Parable.@access cell_of Read() Whole()
-            Parable.@access neighbors Read() Whole()
-            Parable.@access forcex Write() Block(r)
-            Parable.@access forcey Write() Block(r)
+        Parables.@spawn Parables.@task &quot;forces-$bi&quot; begin
+            Parables.@access posx Read() Whole()
+            Parables.@access posy Read() Whole()
+            Parables.@access cells Read() Whole()
+            Parables.@access cell_of Read() Whole()
+            Parables.@access neighbors Read() Whole()
+            Parables.@access forcex Write() Block(r)
+            Parables.@access forcey Write() Block(r)
             accumulate_forces!(r, cell_of, neighbors, cells, posx, posy, forcex, forcey, box, cutoff2, soft, particle_radius, k_spring)
         end
-        Parable.@spawn Parable.@task &quot;integrate-pos-$bi&quot; begin
-            Parable.@access posx ReadWrite() Block(r)
-            Parable.@access posy ReadWrite() Block(r)
-            Parable.@access velx ReadWrite() Block(r)
-            Parable.@access vely ReadWrite() Block(r)
-            Parable.@access forcex Read() Block(r)
-            Parable.@access forcey Read() Block(r)
+        Parables.@spawn Parables.@task &quot;integrate-pos-$bi&quot; begin
+            Parables.@access posx ReadWrite() Block(r)
+            Parables.@access posy ReadWrite() Block(r)
+            Parables.@access velx ReadWrite() Block(r)
+            Parables.@access vely ReadWrite() Block(r)
+            Parables.@access forcex Read() Block(r)
+            Parables.@access forcey Read() Block(r)
             integrate_position!(r, posx, posy, velx, vely, forcex, forcey, dt, box)
         end
     end
-    Parable.@spawn Parable.@task &quot;bin-2&quot; begin
-        Parable.@access posx Read() Whole()
-        Parable.@access posy Read() Whole()
-        Parable.@access cells Write() Whole()
-        Parable.@access cell_of Write() Whole()
+    Parables.@spawn Parables.@task &quot;bin-2&quot; begin
+        Parables.@access posx Read() Whole()
+        Parables.@access posy Read() Whole()
+        Parables.@access cells Write() Whole()
+        Parables.@access cell_of Write() Whole()
         bin_particles_auto!(cells, cell_of, posx, posy, box, n_cells_x, n_cells_y, bin_ctx)
     end
     for (bi, r) in enumerate(blocks)
-        Parable.@spawn Parable.@task &quot;forces2-$bi&quot; begin
-            Parable.@access posx Read() Whole()
-            Parable.@access posy Read() Whole()
-            Parable.@access cells Read() Whole()
-            Parable.@access cell_of Read() Whole()
-            Parable.@access neighbors Read() Whole()
-            Parable.@access forcex Write() Block(r)
-            Parable.@access forcey Write() Block(r)
+        Parables.@spawn Parables.@task &quot;forces2-$bi&quot; begin
+            Parables.@access posx Read() Whole()
+            Parables.@access posy Read() Whole()
+            Parables.@access cells Read() Whole()
+            Parables.@access cell_of Read() Whole()
+            Parables.@access neighbors Read() Whole()
+            Parables.@access forcex Write() Block(r)
+            Parables.@access forcey Write() Block(r)
             accumulate_forces!(r, cell_of, neighbors, cells, posx, posy, forcex, forcey, box, cutoff2, soft, particle_radius, k_spring)
         end
-        Parable.@spawn Parable.@task &quot;integrate-vel-$bi&quot; begin
-            Parable.@access velx ReadWrite() Block(r)
-            Parable.@access vely ReadWrite() Block(r)
-            Parable.@access forcex Read() Block(r)
-            Parable.@access forcey Read() Block(r)
+        Parables.@spawn Parables.@task &quot;integrate-vel-$bi&quot; begin
+            Parables.@access velx ReadWrite() Block(r)
+            Parables.@access vely ReadWrite() Block(r)
+            Parables.@access forcex Read() Block(r)
+            Parables.@access forcey Read() Block(r)
             integrate_velocity!(r, velx, vely, forcex, forcey, dt)
         end
     end
@@ -229,4 +229,4 @@ end
 println(&quot;completed &quot;, steps, &quot; steps with &quot;, 4 * length(blocks) + 2, &quot; tasks/step&quot;)
 println(&quot;frames written to &quot;, output_dir)
 include(joinpath(@__DIR__, &quot;tools&quot;, &quot;build_md_animation.jl&quot;))
-</code></pre><h2 id="Visualization"><a class="docs-heading-anchor" href="#Visualization">Visualization</a><a id="Visualization-1"></a><a class="docs-heading-anchor-permalink" href="#Visualization" title="Permalink"></a></h2><p>Animation generated during docs build from MD frame CSVs.</p><iframe src="03_molecular_dynamics_animation.html" width="720" height="760" style="border:1px solid #d0d7de;"></iframe><p><a href="../03_molecular_dynamics_animation.html">Open animation in a new tab</a></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../02_block_sum/">« Block Sum</a><a class="docs-footer-nextpage" href="../04_histogram/">Histogram »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Thursday 26 February 2026 01:40">Thursday 26 February 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre><h2 id="Visualization"><a class="docs-heading-anchor" href="#Visualization">Visualization</a><a id="Visualization-1"></a><a class="docs-heading-anchor-permalink" href="#Visualization" title="Permalink"></a></h2><p>Animation generated during docs build from MD frame CSVs.</p><iframe src="03_molecular_dynamics_animation.html" width="720" height="760" style="border:1px solid #d0d7de;"></iframe><p><a href="../03_molecular_dynamics_animation.html">Open animation in a new tab</a></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../02_block_sum/">« Block Sum</a><a class="docs-footer-nextpage" href="../04_histogram/">Histogram »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Thursday 26 February 2026 01:59">Thursday 26 February 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
