@@ -8,8 +8,8 @@
     @test length(t.accesses) == 1
 
     dag = detangle_foreach(blocks) do r, i
-        Detangle.@task "t-$i" begin
-            Detangle.@access obj Write() Whole()
+        Parable.@task "t-$i" begin
+            Parable.@access obj Write() Whole()
             obj[] += 1
         end
     end
@@ -20,12 +20,12 @@
     obj[] = 0
     dag2 = detangle_foreach(blocks) do r, i
         tasks = TaskSpec[]
-        push!(tasks, Detangle.@task "a-$i" begin
-            Detangle.@access obj Write() Whole()
+        push!(tasks, Parable.@task "a-$i" begin
+            Parable.@access obj Write() Whole()
             obj[] += 1
         end)
-        push!(tasks, Detangle.@task "b-$i" begin
-            Detangle.@access obj Write() Whole()
+        push!(tasks, Parable.@task "b-$i" begin
+            Parable.@access obj Write() Whole()
             obj[] += 1
         end)
         tasks

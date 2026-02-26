@@ -1,4 +1,4 @@
-using Detangle
+using Parable
 
 include(joinpath(@__DIR__, "md_utils.jl"))
 
@@ -6,7 +6,7 @@ envint(key, default) = parse(Int, get(ENV, key, string(default)))
 envbool(key, default) = lowercase(get(ENV, key, default ? "true" : "false")) in ("1", "true", "yes", "on")
 
 # Simplified MD demo: per-block force/integration tasks with spatial binning.
-# Tasks declare which arrays/regions they read and write; Detangle uses that
+# Tasks declare which arrays/regions they read and write; Parable uses that
 # information to order dependent work and expose safe parallelism.
 
 # === Parameters ===
@@ -140,61 +140,61 @@ println("building DAG...")
 #   2) integrate-pos-$bi: advance positions with a half-step velocity update.
 #   3) forces2-$bi: recompute forces after positions update.
 #   4) integrate-vel-$bi: finish the velocity update.
-# Access annotations describe which regions are read or written so Detangle can
+# Access annotations describe which regions are read or written so Parable can
 # order dependent tasks and run independent blocks in parallel.
-dag = Detangle.@dag begin
-    Detangle.@spawn Detangle.@task "bin-1" begin
-        Detangle.@access posx Read() Whole()
-        Detangle.@access posy Read() Whole()
-        Detangle.@access cells Write() Whole()
-        Detangle.@access cell_of Write() Whole()
+dag = Parable.@dag begin
+    Parable.@spawn Parable.@task "bin-1" begin
+        Parable.@access posx Read() Whole()
+        Parable.@access posy Read() Whole()
+        Parable.@access cells Write() Whole()
+        Parable.@access cell_of Write() Whole()
         # Parallel binning builds per-cell particle lists.
         bin_particles_auto!(cells, cell_of, posx, posy, box, n_cells_x, n_cells_y, bin_ctx)
     end
     for (bi, r) in enumerate(blocks)
-        Detangle.@spawn Detangle.@task "forces-$bi" begin
-            Detangle.@access posx Read() Whole()
-            Detangle.@access posy Read() Whole()
-            Detangle.@access cells Read() Whole()
-            Detangle.@access cell_of Read() Whole()
-            Detangle.@access neighbors Read() Whole()
-            Detangle.@access forcex Write() Block(r)
-            Detangle.@access forcey Write() Block(r)
+        Parable.@spawn Parable.@task "forces-$bi" begin
+            Parable.@access posx Read() Whole()
+            Parable.@access posy Read() Whole()
+            Parable.@access cells Read() Whole()
+            Parable.@access cell_of Read() Whole()
+            Parable.@access neighbors Read() Whole()
+            Parable.@access forcex Write() Block(r)
+            Parable.@access forcey Write() Block(r)
             accumulate_forces!(r, cell_of, neighbors, cells, posx, posy, forcex, forcey, box, cutoff2, soft, particle_radius, k_spring)
         end
-        Detangle.@spawn Detangle.@task "integrate-pos-$bi" begin
-            Detangle.@access posx ReadWrite() Block(r)
-            Detangle.@access posy ReadWrite() Block(r)
-            Detangle.@access velx ReadWrite() Block(r)
-            Detangle.@access vely ReadWrite() Block(r)
-            Detangle.@access forcex Read() Block(r)
-            Detangle.@access forcey Read() Block(r)
+        Parable.@spawn Parable.@task "integrate-pos-$bi" begin
+            Parable.@access posx ReadWrite() Block(r)
+            Parable.@access posy ReadWrite() Block(r)
+            Parable.@access velx ReadWrite() Block(r)
+            Parable.@access vely ReadWrite() Block(r)
+            Parable.@access forcex Read() Block(r)
+            Parable.@access forcey Read() Block(r)
             integrate_position!(r, posx, posy, velx, vely, forcex, forcey, dt, box)
         end
     end
-    Detangle.@spawn Detangle.@task "bin-2" begin
-        Detangle.@access posx Read() Whole()
-        Detangle.@access posy Read() Whole()
-        Detangle.@access cells Write() Whole()
-        Detangle.@access cell_of Write() Whole()
+    Parable.@spawn Parable.@task "bin-2" begin
+        Parable.@access posx Read() Whole()
+        Parable.@access posy Read() Whole()
+        Parable.@access cells Write() Whole()
+        Parable.@access cell_of Write() Whole()
         bin_particles_auto!(cells, cell_of, posx, posy, box, n_cells_x, n_cells_y, bin_ctx)
     end
     for (bi, r) in enumerate(blocks)
-        Detangle.@spawn Detangle.@task "forces2-$bi" begin
-            Detangle.@access posx Read() Whole()
-            Detangle.@access posy Read() Whole()
-            Detangle.@access cells Read() Whole()
-            Detangle.@access cell_of Read() Whole()
-            Detangle.@access neighbors Read() Whole()
-            Detangle.@access forcex Write() Block(r)
-            Detangle.@access forcey Write() Block(r)
+        Parable.@spawn Parable.@task "forces2-$bi" begin
+            Parable.@access posx Read() Whole()
+            Parable.@access posy Read() Whole()
+            Parable.@access cells Read() Whole()
+            Parable.@access cell_of Read() Whole()
+            Parable.@access neighbors Read() Whole()
+            Parable.@access forcex Write() Block(r)
+            Parable.@access forcey Write() Block(r)
             accumulate_forces!(r, cell_of, neighbors, cells, posx, posy, forcex, forcey, box, cutoff2, soft, particle_radius, k_spring)
         end
-        Detangle.@spawn Detangle.@task "integrate-vel-$bi" begin
-            Detangle.@access velx ReadWrite() Block(r)
-            Detangle.@access vely ReadWrite() Block(r)
-            Detangle.@access forcex Read() Block(r)
-            Detangle.@access forcey Read() Block(r)
+        Parable.@spawn Parable.@task "integrate-vel-$bi" begin
+            Parable.@access velx ReadWrite() Block(r)
+            Parable.@access vely ReadWrite() Block(r)
+            Parable.@access forcex Read() Block(r)
+            Parable.@access forcey Read() Block(r)
             integrate_velocity!(r, velx, vely, forcex, forcey, dt)
         end
     end

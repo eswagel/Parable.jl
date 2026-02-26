@@ -1,7 +1,7 @@
 using Test
 
 push!(LOAD_PATH, joinpath(@__DIR__, "..", "src"))
-using Detangle
+using Parable
 
 include("test_effects.jl")
 include("test_regions.jl")

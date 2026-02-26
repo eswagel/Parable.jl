@@ -1,8 +1,8 @@
 @testset "diagnostics" begin
     obj = Ref([1, 2, 3])
 
-    task = Detangle.@task "t1" begin
-        Detangle.@access obj Write() Block(1:2)
+    task = Parable.@task "t1" begin
+        Parable.@access obj Write() Block(1:2)
         obj[][1] = 2
     end
 
@@ -18,17 +18,17 @@
     @test occursin("Write", task_str)
     @test occursin("Block(1:2)", task_str)
 
-    other_task = Detangle.@task "t2" begin
-        Detangle.@access obj Read() Block(2:3)
+    other_task = Parable.@task "t2" begin
+        Parable.@access obj Read() Block(2:3)
     end
 
     conflict = explain_conflict(task, other_task)
     println("conflict: ", conflict)
     @test conflict !== nothing
 
-    dag = Detangle.@dag begin
-        Detangle.@spawn task
-        Detangle.@spawn other_task
+    dag = Parable.@dag begin
+        Parable.@spawn task
+        Parable.@spawn other_task
     end
 
     dag_str = sprint(io -> print_dag(dag; io=io))

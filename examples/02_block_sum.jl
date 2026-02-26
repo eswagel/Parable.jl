@@ -1,4 +1,4 @@
-using Detangle
+using Parable
 
 # Example: block a vector into ranges, spawn one task per block, and write each
 # block's sum into its own slot. This makes the parallel reduction safe and lets
@@ -31,9 +31,9 @@ partials = zeros(Int, length(blocks))
 
 dag = detangle_foreach(blocks) do r, bi
     # Each task reads its block and writes one slot in the partials array.
-    Detangle.@task "block-$bi" begin
-        Detangle.@access data Read() Block(r)
-        Detangle.@access partials Write() Key(bi)
+    Parable.@task "block-$bi" begin
+        Parable.@access data Read() Block(r)
+        Parable.@access partials Write() Key(bi)
         partials[bi] = block_sum(data, r)
     end
 end

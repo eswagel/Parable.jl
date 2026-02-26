@@ -1,7 +1,7 @@
-# Detangle.jl
+# Parable.jl
 
-Detangle.jl is a Julia runtime for safe parallel execution.
-You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over explicit regions (`Whole`, `Block`, `Key`, ...), and Detangle builds a dependency DAG that can run serially or on threads.
+Parable.jl is a Julia runtime for safe parallel execution.
+You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over explicit regions (`Whole`, `Block`, `Key`, ...), and Parable builds a dependency DAG that can run serially or on threads.
 
 ## Start Here
 
@@ -9,7 +9,7 @@ You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over explicit
 2. Run one tutorial from [Tutorials](tutorials/overview.md)
 3. Use the [Manual](manual/overview.md) for deeper semantics and API details
 
-## Why Detangle
+## Why Parable
 
 - You write task logic directly in Julia.
 - Access annotations make dependencies explicit and debuggable.

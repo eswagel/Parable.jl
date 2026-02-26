@@ -42,7 +42,7 @@ deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 version = "1.11.0"
 
-[[deps.Detangle]]
+[[deps.Parable]]
 path = ".."
 uuid = "b23e9bf5-c030-48ea-90eb-85d026696f85"
 version = "1.0.0-DEV"

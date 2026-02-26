@@ -1,12 +1,12 @@
 # Getting Started
 
-This page covers the minimum path to install Detangle, build a small DAG, and run it safely.
+This page covers the minimum path to install Parable, build a small DAG, and run it safely.
 
 ## Installation
 
 ```julia
 import Pkg
-Pkg.add("Detangle")
+Pkg.add("Parable")
 ```
 
 For local development in this repository:
@@ -19,27 +19,27 @@ Pkg.develop(path=".")
 ## First DAG
 
 ```julia
-using Detangle
+using Parable
 
 obj = Ref(0)
 
-dag = Detangle.@dag begin
-    Detangle.@spawn Detangle.@task "init" begin
-        Detangle.@accesses begin
+dag = Parable.@dag begin
+    Parable.@spawn Parable.@task "init" begin
+        Parable.@accesses begin
             (obj, Write(), Whole())
         end
         obj[] = 1
     end
 
-    Detangle.@spawn Detangle.@task "bump" begin
-        Detangle.@accesses begin
+    Parable.@spawn Parable.@task "bump" begin
+        Parable.@accesses begin
             (obj, ReadWrite(), Whole())
         end
         obj[] += 1
     end
 
-    Detangle.@spawn Detangle.@task "read" begin
-        Detangle.@accesses begin
+    Parable.@spawn Parable.@task "read" begin
+        Parable.@accesses begin
             (obj, Read(), Whole())
         end
         println("value = ", obj[])
@@ -74,4 +74,4 @@ JULIA_NUM_THREADS=8 julia
 
 - Read [Manual Overview](manual/overview.md) for concepts and APIs.
 - Run end-to-end scripts in `examples/` via [Tutorials](tutorials/overview.md).
-- See [Comparison](comparison.md) for when Detangle is the right fit.
+- See [Comparison](comparison.md) for when Parable is the right fit.

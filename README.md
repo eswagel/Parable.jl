@@ -1,19 +1,19 @@
-# Detangle.jl
+# Parable.jl
 
-[![Build Status](https://github.com/eswagel/Detangle.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/eswagel/Detangle.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Documentation](https://github.com/eswagel/Detangle.jl/actions/workflows/Documentation.yml/badge.svg?branch=main)](https://github.com/eswagel/Detangle.jl/actions/workflows/Documentation.yml?query=branch%3Amain)
+[![Build Status](https://github.com/eswagel/Parable.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/eswagel/Parable.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Documentation](https://github.com/eswagel/Parable.jl/actions/workflows/Documentation.yml/badge.svg?branch=main)](https://github.com/eswagel/Parable.jl/actions/workflows/Documentation.yml?query=branch%3Amain)
 
-Detangle.jl is a Julia runtime for safe parallel execution with explicit data-access semantics.
-You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over regions (`Whole`, `Block`, `Key`, `Tile`, `IndexSet`), and Detangle builds a dependency DAG that runs serially or on threads.
+Parable.jl is a Julia runtime for safe parallel execution with explicit data-access semantics.
+You annotate task effects (`Read`, `Write`, `ReadWrite`, `Reduce`) over regions (`Whole`, `Block`, `Key`, `Tile`, `IndexSet`), and Parable builds a dependency DAG that runs serially or on threads.
 
 ## Documentation
 
-[Documentation Home](https://eswagel.github.io/Detangle.jl/dev/)
+[Documentation Home](https://eswagel.github.io/Parable.jl/dev/)
 
-- [Getting Started](https://eswagel.github.io/Detangle.jl/dev/getting_started/)
-- [Manual](https://eswagel.github.io/Detangle.jl/dev/manual/overview/)
-- [Tutorials](https://eswagel.github.io/Detangle.jl/dev/tutorials/overview/)
-- [API Reference](https://eswagel.github.io/Detangle.jl/dev/manual/api_reference/)
+- [Getting Started](https://eswagel.github.io/Parable.jl/dev/getting_started/)
+- [Manual](https://eswagel.github.io/Parable.jl/dev/manual/overview/)
+- [Tutorials](https://eswagel.github.io/Parable.jl/dev/tutorials/overview/)
+- [API Reference](https://eswagel.github.io/Parable.jl/dev/manual/api_reference/)
 
 ## Installation
 
@@ -21,40 +21,40 @@ From General:
 
 ```julia
 using Pkg
-Pkg.add("Detangle")
+Pkg.add("Parable")
 ```
 
 From GitHub (if needed):
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/eswagel/Detangle.jl")
+Pkg.add(url="https://github.com/eswagel/Parable.jl")
 ```
 
 ## Quick Start
 
 ```julia
-using Detangle
+using Parable
 
 obj = Ref(0)
 
-dag = Detangle.@dag begin
-    Detangle.@spawn Detangle.@task "init" begin
-        Detangle.@accesses begin
+dag = Parable.@dag begin
+    Parable.@spawn Parable.@task "init" begin
+        Parable.@accesses begin
             (obj, Write(), Whole())
         end
         obj[] = 1
     end
 
-    Detangle.@spawn Detangle.@task "bump" begin
-        Detangle.@accesses begin
+    Parable.@spawn Parable.@task "bump" begin
+        Parable.@accesses begin
             (obj, ReadWrite(), Whole())
         end
         obj[] += 1
     end
 
-    Detangle.@spawn Detangle.@task "read" begin
-        Detangle.@accesses begin
+    Parable.@spawn Parable.@task "read" begin
+        Parable.@accesses begin
             (obj, Read(), Whole())
         end
         println("value = ", obj[])
@@ -83,7 +83,7 @@ execute_threads!(dag)  # then run parallel
 
 ## Contributing
 
-Contributions to Detangle.jl are welcome! To contribute, please submit a pull request or raise an issue.
+Contributions to Parable.jl are welcome! To contribute, please submit a pull request or raise an issue.
 
 ## License
 

@@ -1,10 +1,10 @@
 # Comparison
 
-Detangle is best when you want explicit, inspectable task dependencies from effect and region annotations.
+Parable is best when you want explicit, inspectable task dependencies from effect and region annotations.
 
 ## Quick fit check
 
-Detangle is usually a strong fit when:
+Parable is usually a strong fit when:
 
 - you have shared-memory workloads,
 - work is naturally task-graph shaped,
@@ -16,40 +16,40 @@ It is usually not the first tool to reach for when:
 - the workload is primarily distributed across machines,
 - or dependency structure is trivial and static.
 
-## Detangle vs `Threads.@threads`
+## Parable vs `Threads.@threads`
 
 `Threads.@threads` is great for regular data-parallel loops.
-Detangle is a better fit when:
+Parable is a better fit when:
 
 - Work is naturally a graph, not one loop.
 - Different tasks touch different objects/regions.
 - You want dependency reasoning to stay explicit in code.
 
-## Detangle vs manual `Threads.@spawn`
+## Parable vs manual `Threads.@spawn`
 
 Manual `@spawn` gives full control but dependency management is on you.
-Detangle adds:
+Parable adds:
 
 - Declarative read/write/reduce access metadata
 - Automatic DAG edge construction from conflicts
 - Diagnostics (`print_dag`, `explain_conflict`)
 
-## Detangle vs ad-hoc locks/atomics
+## Parable vs ad-hoc locks/atomics
 
 Locks and atomics can solve contention but usually make intent harder to read.
-Detangle shifts correctness to task declarations:
+Parable shifts correctness to task declarations:
 
 - Safer default ordering from conflict analysis
 - Optional reduction privatization for `Reduce(op)` patterns
 
-## Detangle vs distributed schedulers
+## Parable vs distributed schedulers
 
-For single-process shared-memory workloads, Detangle keeps overhead low and APIs simple.
+For single-process shared-memory workloads, Parable keeps overhead low and APIs simple.
 If you need cluster/distributed execution, specialized distributed runtimes are a better match.
 
 ## Rule of thumb
 
-Choose Detangle when you want:
+Choose Parable when you want:
 
 - Shared-memory parallelism
 - Explicit, auditable dependency structure

@@ -1,6 +1,6 @@
 # Concepts and Semantics
 
-This page defines the core entities and rules Detangle uses to infer safe execution order.
+This page defines the core entities and rules Parable uses to infer safe execution order.
 
 ## Core entities
 
@@ -57,7 +57,7 @@ Two accesses conflict when all three are true:
 2. Overlapping region.
 3. At least one write-like effect.
 
-If accesses conflict, Detangle inserts an ordering edge in the DAG.
+If accesses conflict, Parable inserts an ordering edge in the DAG.
 
 ## Common pitfalls
 

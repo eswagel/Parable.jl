@@ -7,13 +7,13 @@
 
     hist = zeros(Int, nbins)
 
-    dag = Detangle.@dag begin
+    dag = Parable.@dag begin
         for (bi, r) in enumerate(blocks)
-            Detangle.@spawn Detangle.@task "hist-$bi" begin
-                Detangle.@access hist Reduce(+) Whole()
+            Parable.@spawn Parable.@task "hist-$bi" begin
+                Parable.@access hist Reduce(+) Whole()
                 for i in r
                     bin = data[i]
-                    Detangle.reduce_add!(hist, +, Whole(), bin, 1)
+                    Parable.reduce_add!(hist, +, Whole(), bin, 1)
                 end
             end
         end

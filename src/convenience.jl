@@ -153,9 +153,9 @@ function detangle_map!(dest::AbstractVector, data::AbstractVector, blocks, f::Fu
     length(dest) == length(data) || error("dest and data must be the same length")
 
     dag = detangle_foreach(blocks; finalize=false) do r, i
-        Detangle.@task "$(name_prefix)-$i" begin
-            Detangle.@access data Read() Block(r)
-            Detangle.@access dest Write() Block(r)
+        Parable.@task "$(name_prefix)-$i" begin
+            Parable.@access data Read() Block(r)
+            Parable.@access dest Write() Block(r)
             @inbounds for idx in r
                 dest[idx] = f(data[idx])
             end
@@ -212,11 +212,11 @@ function detangle_mapreduce(data::AbstractVector, blocks, op::Function, mapf::Fu
     name_prefix::String="mapreduce")
     acc = zeros(eltype(data), 1)
     dag = detangle_foreach(blocks; finalize=false) do r, i
-        Detangle.@task "$(name_prefix)-$i" begin
-            Detangle.@access data Read() Block(r)
-            Detangle.@access acc Reduce(op) Whole()
+        Parable.@task "$(name_prefix)-$i" begin
+            Parable.@access data Read() Block(r)
+            Parable.@access acc Reduce(op) Whole()
             @inbounds for idx in r
-                Detangle.reduce_add!(acc, op, Whole(), 1, mapf(data[idx]))
+                Parable.reduce_add!(acc, op, Whole(), 1, mapf(data[idx]))
             end
         end
     end

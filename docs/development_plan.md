@@ -9,10 +9,10 @@ This is **not** a full compiler auto-parallelizer. It’s a runtime + lightweigh
 ## Repository layout
 
 ```
-Detangle.jl/
+Parable.jl/
   Project.toml
   src/
-    Detangle.jl
+    Parable.jl
     effects.jl
     regions.jl
     access.jl
@@ -40,11 +40,11 @@ Detangle.jl/
 
 ---
 
-## `src/Detangle.jl`
+## `src/Parable.jl`
 
 Package entrypoint.
 
-- `module Detangle`
+- `module Parable`
 - `include(...)` all source files
 - Export a small, stable public API:
   - Effects: `Read`, `Write`, `ReadWrite`, `Reduce`
@@ -372,7 +372,7 @@ That’s enough to validate the concept and decide whether to invest in:
 This repository has moved from planning to a working MVP implementation.
 
 Implemented and validated:
-- Core runtime files listed above are present and wired through `src/Detangle.jl`.
+- Core runtime files listed above are present and wired through `src/Parable.jl`.
 - Test suite passes with `Pkg.test()` (effects, regions, access/task, conflicts, dag, scheduler, macros, diagnostics, reduction privatization, convenience helpers).
 - `examples/03_molecular_dynamics.jl` runs end-to-end and writes frames/animation output.
 - `examples/04_histogram.jl` validates correctness for both `reduce_strategy=:serialize` and `:privatize`.

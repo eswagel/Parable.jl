@@ -6,7 +6,7 @@ This manual is split into three layers:
 - **Concepts and Semantics:** detailed rules for effects, regions, and conflict detection.
 - **API Reference:** generated docs for all exported types, functions, and macros.
 
-If you are new to Detangle, start here, run the example, then continue to the Concepts page.
+If you are new to Parable, start here, run the example, then continue to the Concepts page.
 
 ## Who this manual is for
 
@@ -18,28 +18,28 @@ This manual assumes you are comfortable with Julia and want to:
 
 ## The mental model
 
-Detangle separates:
+Parable separates:
 
 - **Task code**: the computation you want to run.
 - **Access metadata**: what each task reads/writes/reduces.
 
-From that metadata, Detangle builds a dependency DAG and executes it safely with
+From that metadata, Parable builds a dependency DAG and executes it safely with
 either a serial or threaded backend.
 
 ## A complete example
 
 ```julia
-using Detangle
+using Parable
 
 x = rand(100)
 y = similar(x)
 blocks = eachblock(length(x), 25)
 
-dag = Detangle.@dag begin
+dag = Parable.@dag begin
     for (i, r) in enumerate(blocks)
-        Detangle.@spawn Detangle.@task "scale-$i" begin
-            Detangle.@access x Read() Block(r)
-            Detangle.@access y Write() Block(r)
+        Parable.@spawn Parable.@task "scale-$i" begin
+            Parable.@access x Read() Block(r)
+            Parable.@access y Write() Block(r)
             @inbounds for idx in r
                 y[idx] = 2 * x[idx]
             end
@@ -62,7 +62,7 @@ Why these tasks can run in parallel:
 - Every task only reads from `x`.
 - Every task writes to a non-overlapping `Block(r)` of `y`.
 
-If the writes overlapped, Detangle would introduce ordering edges automatically.
+If the writes overlapped, Parable would introduce ordering edges automatically.
 
 ## Where to go next
 

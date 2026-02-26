@@ -1,4 +1,4 @@
-module Detangle
+module Parable
 
 include("effects.jl")
 include("regions.jl")

@@ -3,7 +3,7 @@
 
 Abstract supertype for region descriptors used by access declarations.
 
-A region scopes an effect to a subset of an object so Detangle can distinguish
+A region scopes an effect to a subset of an object so Parable can distinguish
 independent accesses from conflicting ones.
 """
 abstract type Region end

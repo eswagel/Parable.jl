@@ -24,6 +24,6 @@
     @test !overlaps(Key(:a), Block(1:1))
 
     # Generic fallback remains conservative true
-    struct DummyRegion <: Detangle.Region end
+    struct DummyRegion <: Parable.Region end
     @test overlaps(DummyRegion(), DummyRegion())
 end

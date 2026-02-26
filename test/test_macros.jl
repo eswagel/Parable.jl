@@ -1,13 +1,13 @@
 @testset "macros" begin
     obj = Ref(0)
 
-    dag = Detangle.@dag begin
-        Detangle.@spawn Detangle.@task "write" begin
-            Detangle.@access obj Write() Whole()
+    dag = Parable.@dag begin
+        Parable.@spawn Parable.@task "write" begin
+            Parable.@access obj Write() Whole()
             obj[] = 1
         end
-        Detangle.@spawn Detangle.@task "readwrite" begin
-            Detangle.@access obj ReadWrite() Whole()
+        Parable.@spawn Parable.@task "readwrite" begin
+            Parable.@access obj ReadWrite() Whole()
             obj[] += 1
         end
     end
@@ -22,8 +22,8 @@ end
 @testset "accesses block" begin
     obj = Ref(0)
 
-    task = Detangle.@task "write" begin
-        Detangle.@accesses begin
+    task = Parable.@task "write" begin
+        Parable.@accesses begin
             (obj, Write(), Whole())
         end
         obj[] = 1

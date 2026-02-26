@@ -18,9 +18,9 @@ Create a `TaskSpec` from a task body.
 
 # Example
 ```julia
-Detangle.@task "scale" begin
-    Detangle.@access x Read() Whole()
-    Detangle.@access y Write() Whole()
+Parable.@task "scale" begin
+    Parable.@access x Read() Whole()
+    Parable.@access y Write() Whole()
     y .= 2 .* x
 end
 ```
@@ -177,8 +177,8 @@ finalized `DAG`.
 
 # Example
 ```julia
-dag = Detangle.@dag begin
-    Detangle.@spawn Detangle.@task "t1" begin
+dag = Parable.@dag begin
+    Parable.@spawn Parable.@task "t1" begin
         ...
     end
 end

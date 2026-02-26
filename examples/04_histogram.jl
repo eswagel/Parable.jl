@@ -1,4 +1,4 @@
-using Detangle
+using Parable
 using Base.Threads
 
 # Example: histogramming with reduction privatization.
@@ -30,12 +30,12 @@ end
 hist = zeros(Int, nbins)
 
 dag = detangle_foreach(blocks) do r, bi
-    Detangle.@task "hist-$bi" begin
-        Detangle.@access hist Reduce(+) Whole()
+    Parable.@task "hist-$bi" begin
+        Parable.@access hist Reduce(+) Whole()
         @inbounds for i in r
             bin = data[i]
             extra_work(bin, i) # Adds compute without changing the bin, so parallelism has real work to speed up.
-            Detangle.reduce_add!(hist, +, Whole(), bin, 1) # Route Reduce(+) into privatized buffers when enabled.
+            Parable.reduce_add!(hist, +, Whole(), bin, 1) # Route Reduce(+) into privatized buffers when enabled.
         end
     end
 end

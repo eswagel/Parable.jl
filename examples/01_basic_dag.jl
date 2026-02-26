@@ -1,28 +1,28 @@
-using Detangle
+using Parable
 
 obj = Ref(0)
 
 # A simple three-task chain over the same object.
-dag = Detangle.@dag begin
+dag = Parable.@dag begin
     # First task writes a fresh value.
-    Detangle.@spawn Detangle.@task "init" begin
-        Detangle.@accesses begin
+    Parable.@spawn Parable.@task "init" begin
+        Parable.@accesses begin
             (obj, Write(), Whole())
         end
         obj[] = 1
     end
 
     # Second task mutates the same object.
-    Detangle.@spawn Detangle.@task "bump" begin
-        Detangle.@accesses begin
+    Parable.@spawn Parable.@task "bump" begin
+        Parable.@accesses begin
             (obj, ReadWrite(), Whole())
         end
         obj[] += 1
     end
 
     # Final task reads the result.
-    Detangle.@spawn Detangle.@task "read" begin
-        Detangle.@accesses begin
+    Parable.@spawn Parable.@task "read" begin
+        Parable.@accesses begin
             (obj, Read(), Whole())
         end
         println("value = ", obj[])
