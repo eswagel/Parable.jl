@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Histogram · Parables.jl</title><meta name="title" content="Histogram · Parables.jl"/><meta property="og:title" content="Histogram · Parables.jl"/><meta property="twitter:title" content="Histogram · Parables.jl"/><meta name="description" content="Documentation for Parables.jl."/><meta property="og:description" content="Documentation for Parables.jl."/><meta property="twitter:description" content="Documentation for Parables.jl."/><script data-outdated-warner src="../../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../search_index.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Parables.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../getting_started/">Getting Started</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../manual/overview/">Overview</a></li><li><a class="tocitem" href="../../../manual/concepts/">Concepts and Semantics</a></li><li><a class="tocitem" href="../../../manual/api_reference/">API Reference</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../overview/">Overview</a></li><li><a class="tocitem" href="../01_basic_dag/">Basic Dag</a></li><li><a class="tocitem" href="../02_block_sum/">Block Sum</a></li><li><a class="tocitem" href="../03_molecular_dynamics/">Molecular Dynamics</a></li><li class="is-active"><a class="tocitem" href>Histogram</a><ul class="internal"><li><a class="tocitem" href="#Visualization"><span>Visualization</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../../../comparison/">Comparison</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Histogram</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Histogram</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/eswagel/Parables.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/eswagel/Parables.jl/blob/main/docs/src/tutorials/generated/04_histogram.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Histogram"><a class="docs-heading-anchor" href="#Histogram">Histogram</a><a id="Histogram-1"></a><a class="docs-heading-anchor-permalink" href="#Histogram" title="Permalink"></a></h1><p>This page is auto-generated from <code>examples/04_histogram.jl</code>.</p><p>The tutorial code is rendered only (not executed during docs build).</p><pre><code class="language-julia hljs">using Parables
+using Base.Threads
+
+# Example: histogramming with reduction privatization.
+# Each task processes a block of data and reduces into shared bins.
+
+n = 2_500_000
+nbins = 20
+block_size = 125_000
+
+# Gaussian-shaped data mapped into integer bins.
+mu = (nbins + 1) / 2
+sigma = nbins / 7
+data = Vector{Int}(undef, n)
+for i in 1:n
+    x = mu + sigma * randn()
+    bin = clamp(Int(round(x)), 1, nbins)
+    data[i] = bin
+end
+blocks = eachblock(n, block_size)
+# Extra work to make each update heavier without changing the bin.
+@inline function extra_work(x::Int, i::Int)
+    v = x + i
+    @inbounds for _ in 1:8
+        v = (v * 1664525 + 1013904223)
+    end
+    return v
+end
+
+hist = zeros(Int, nbins)
+
+dag = parables_foreach(blocks) do r, bi
+    Parables.@task &quot;hist-$bi&quot; begin
+        Parables.@access hist Reduce(+) Whole()
+        @inbounds for i in r
+            bin = data[i]
+            extra_work(bin, i) # Adds compute without changing the bin, so parallelism has real work to speed up.
+            Parables.reduce_add!(hist, +, Whole(), bin, 1) # Route Reduce(+) into privatized buffers when enabled.
+        end
+    end
+end
+
+# Serial baseline.
+expected = zeros(Int, nbins)
+@inbounds for i in 1:n
+    bin = data[i]
+    extra_work(bin, i)
+    expected[bin] += 1
+end
+
+println(&quot;running serialize...&quot;)
+t_warm = @elapsed execute!(dag; backend=:serial, reduce_strategy=:serialize)
+fill!(hist, 0)
+println(&quot;warm-up serial = &quot;, t_warm, &quot;s&quot;)
+t_serial = @elapsed execute!(dag; backend=:serial, reduce_strategy=:serialize)
+ok_serial = hist == expected
+println(&quot;serialize ok = &quot;, ok_serial, &quot; (&quot;, t_serial, &quot;s)&quot;)
+
+fill!(hist, 0)
+println(&quot;running privatize...&quot;)
+t_warm_par = @elapsed execute!(dag; backend=:threads, reduce_strategy=:privatize)
+fill!(hist, 0)
+println(&quot;warm-up privatize = &quot;, t_warm_par, &quot;s&quot;)
+t_parallel = @elapsed execute!(dag; backend=:threads, reduce_strategy=:privatize)
+ok_parallel = hist == expected
+println(&quot;privatize ok = &quot;, ok_parallel, &quot; (&quot;, t_parallel, &quot;s)&quot;)
+
+println(&quot;threads = &quot;, nthreads())
+if ok_serial &amp;&amp; ok_parallel
+    if t_parallel &gt; 0
+        speedup = t_serial / t_parallel
+        println(&quot;speedup = &quot;, round(speedup; digits=2), &quot;x&quot;)
+    end
+else
+    println(&quot;results differ; check reduce_add! usage and Reduce annotations&quot;)
+end
+
+if nthreads() == 1
+    println(&quot;note: set JULIA_NUM_THREADS&gt;1 to see parallel speedups&quot;)
+end
+
+# Simple ASCII bar chart for tangible output.
+function print_histogram(counts; width::Int=40)
+    maxc = maximum(counts)
+    maxc == 0 &amp;&amp; (println(&quot;(empty)&quot;); return)
+    for (i, c) in enumerate(counts)
+        bar_len = Int(round(width * c / maxc))
+        bar = repeat(&quot;█&quot;, bar_len)
+        println(lpad(string(i), 3), &quot; | &quot;, bar, &quot; &quot;, c)
+    end
+end
+
+println(&quot;\nHistogram (privatize run):&quot;)
+print_histogram(hist)
+</code></pre><h2 id="Visualization"><a class="docs-heading-anchor" href="#Visualization">Visualization</a><a id="Visualization-1"></a><a class="docs-heading-anchor-permalink" href="#Visualization" title="Permalink"></a></h2><p>Real terminal output from running the histogram tutorial:</p><pre><code class="language-text hljs">$ JULIA_NUM_THREADS=8 julia --project=. examples/04_histogram.jl
+
+running serialize...
+warm-up serial = 0.513151205s
+serialize ok = true (0.118757679s)
+running privatize...
+warm-up privatize = 0.34740768s
+privatize ok = true (0.168776682s)
+threads = 8
+speedup = 0.7x
+
+Histogram (privatize run):
+  1 |  2140
+  2 | █ 4289
+  3 | █ 11657
+  4 | ███ 27259
+  5 | ███████ 55763
+  6 | ████████████ 101510
+  7 | ███████████████████ 164923
+  8 | ████████████████████████████ 237537
+  9 | ███████████████████████████████████ 302348
+ 10 | ████████████████████████████████████████ 342641
+ 11 | ████████████████████████████████████████ 341216
+ 12 | ███████████████████████████████████ 303778
+ 13 | ████████████████████████████ 237543
+ 14 | ███████████████████ 165224
+ 15 | ████████████ 101847
+ 16 | ██████ 55415
+ 17 | ███ 26882
+ 18 | █ 11655
+ 19 | █ 4378
+ 20 |  1995</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../03_molecular_dynamics/">« Molecular Dynamics</a><a class="docs-footer-nextpage" href="../../../comparison/">Comparison »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Sunday 1 March 2026 02:12">Sunday 1 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
